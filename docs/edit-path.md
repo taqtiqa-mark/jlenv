@@ -58,7 +58,8 @@ _Tools → Build System → New Build System_:
 }
 ```
 
-Save this new build system as "Julia jlenv" or similar so you can distinguish it from the built-in "Julia" build system.
+Save this new build system as "Julia jlenv" or similar so you can distinguish
+it from the built-in "Julia" build system.
 
 ## Capistrano
 
