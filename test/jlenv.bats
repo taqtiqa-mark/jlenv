@@ -12,7 +12,7 @@ load test_helper
 Options to jlenv:
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
-    -nc|--no-colour             Disables colour output
+    -nc|--no-colo(u)r           Disables colour output
     -cr|--cron                  Run silently unless we encounter an error
 
 Usage: jlenv [<opts>] <command> [<args>]
@@ -44,7 +44,7 @@ assert_line --index 0 "$(jlenv---version)"
 Options to jlenv:
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
-    -nc|--no-colour             Disables colour output
+    -nc|--no-colo(u)r           Disables colour output
     -cr|--cron                  Run silently unless we encounter an error
 
 Usage: jlenv [<opts>] <command> [<args>]
@@ -97,7 +97,7 @@ OUT
   dir="${BATS_TMPDIR}/myproject"
   mkdir -p "$dir"
   JLENV_DIR="$dir" run jlenv echo JLENV_DIR
-  assert_output "$dir"
+  assert_output "${dir}"
 }
 
 @test "invalid JLENV_DIR" {

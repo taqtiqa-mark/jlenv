@@ -135,10 +135,64 @@ function script_init() {
 }
 
 
+# DESC: Convert a hex color value to a (nearish) 0-255 color index.
+# ARGS: $1 (required): Hexadecimal value
+# OUTS: 0-255 color index
+# NOTE: The input value requirement is not enforced.
+# 
+#   Conversion   0-255
+# -------------- -----
+# fromhex 002b36   016
+# fromhex 073642   016
+# fromhex 586e75   060
+# fromhex 657b83   066
+# fromhex 839496   102
+# fromhex 93a1a1   109
+# fromhex eee8d5   224
+# fromhex fdf6e3   230
+# fromhex b58900   136
+# fromhex cb4b16   166
+# fromhex dc322f   160
+# fromhex d33682   162
+# fromhex 6c71c4   062
+# fromhex 268bd2   032
+# fromhex 2aa198   036
+# fromhex 859900   100
+fromhex(){
+    hex=${1#"#"}
+    r=$(printf '0x%0.2s' "$hex")
+    g=$(printf '0x%0.2s' ${hex#??})
+    b=$(printf '0x%0.2s' ${hex#????})
+    printf '%03d' "$(( (r<75?0:(r-35)/40)*6*6 + 
+                       (g<75?0:(g-35)/40)*6   +
+                       (b<75?0:(b-35)/40)     + 16 ))"
+}
+
 # DESC: Initialise colour variables
 # ARGS: None
 # OUTS: Read-only variables with ANSI control codes
 # NOTE: If --no-colour was set the variables will be empty
+#
+#
+# SOLARIZED HEX     0-255 16/8 TERMCOL  XTERM/HEX   L*A*B      RGB         HSB
+# --------- ------- ----- ---- -------  ----------- ---------- ----------- -----------
+# base03    #002b36   016  8/4 brblack  234 #1c1c1c 15 -12 -12   0  43  54 193 100  21
+# base02    #073642   016  0/4 black    235 #262626 20 -12 -12   7  54  66 192  90  26
+# base01    #586e75   060 10/7 brgreen  240 #585858 45 -07 -07  88 110 117 194  25  46
+# base00    #657b83   066 11/7 bryellow 241 #626262 50 -07 -07 101 123 131 195  23  51
+# base0     #839496   102 12/6 brblue   244 #808080 60 -06 -03 131 148 150 186  13  59
+# base1     #93a1a1   109 14/4 brcyan   245 #8a8a8a 65 -05 -02 147 161 161 180   9  63
+# base2     #eee8d5   224  7/7 white    254 #e4e4e4 92 -00  10 238 232 213  44  11  93
+# base3     #fdf6e3   230 15/7 brwhite  230 #ffffd7 97  00  10 253 246 227  44  10  99
+# yellow    #b58900   136  3/3 yellow   136 #af8700 60  10  65 181 137   0  45 100  71
+# orange    #cb4b16   166  9/3 brred    166 #d75f00 50  50  55 203  75  22  18  89  80
+# red       #dc322f   160  1/1 red      160 #d70000 50  65  45 220  50  47   1  79  86
+# magenta   #d33682   162  5/5 magenta  125 #af005f 50  65 -05 211  54 130 331  74  83
+# violet    #6c71c4   062 13/5 brmagenta 61 #5f5faf 50  15 -45 108 113 196 237  45  77
+# blue      #268bd2   032  4/4 blue      33 #0087ff 55 -10 -45  38 139 210 205  82  82
+# cyan      #2aa198   036  6/6 cyan      37 #00afaf 60 -35 -05  42 161 152 175  74  63
+# green     #859900   100  2/2 green     64 #5f8700 60 -20  65 133 153   0  68 100  60
+
 function colour_init() {
     if [[ -z ${no_colour-} ]]; then
         # Text attributes
@@ -154,39 +208,39 @@ function colour_init() {
         printf '%b' "$ta_none"
 
         # Foreground codes
-        readonly fg_black="$(tput setaf 0 2> /dev/null || true)"
+        readonly fg_black="$(tput setaf 16 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_blue="$(tput setaf 4 2> /dev/null || true)"
+        readonly fg_blue="$(tput setaf 32 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_cyan="$(tput setaf 6 2> /dev/null || true)"
+        readonly fg_cyan="$(tput setaf 36 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_green="$(tput setaf 2 2> /dev/null || true)"
+        readonly fg_green="$(tput setaf 100 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_magenta="$(tput setaf 5 2> /dev/null || true)"
+        readonly fg_magenta="$(tput setaf 162 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_red="$(tput setaf 1 2> /dev/null || true)"
+        readonly fg_red="$(tput setaf 160 2> /dev/null || true)"
         printf '%b' "$ta_none"
         readonly fg_white="$(tput setaf 7 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly fg_yellow="$(tput setaf 3 2> /dev/null || true)"
+        readonly fg_yellow="$(tput setaf 136 2> /dev/null || true)"
         printf '%b' "$ta_none"
 
         # Background codes
-        readonly bg_black="$(tput setab 0 2> /dev/null || true)"
+        readonly bg_black="$(tput setab 16 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_blue="$(tput setab 4 2> /dev/null || true)"
+        readonly bg_blue="$(tput setab 102 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_cyan="$(tput setab 6 2> /dev/null || true)"
+        readonly bg_cyan="$(tput setab 109 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_green="$(tput setab 2 2> /dev/null || true)"
+        readonly bg_green="$(tput setab 60 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_magenta="$(tput setab 5 2> /dev/null || true)"
+        readonly bg_magenta="$(tput setab 62 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_red="$(tput setab 1 2> /dev/null || true)"
+        readonly bg_red="$(tput setab 166 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_white="$(tput setab 7 2> /dev/null || true)"
+        readonly bg_white="$(tput setab 230 2> /dev/null || true)"
         printf '%b' "$ta_none"
-        readonly bg_yellow="$(tput setab 3 2> /dev/null || true)"
+        readonly bg_yellow="$(tput setab 66 2> /dev/null || true)"
         printf '%b' "$ta_none"
     else
         # Text attributes
@@ -248,7 +302,7 @@ function lock_init() {
         script_exit 'Missing or invalid argument to lock_init()!' 2
     fi
 
-    if mkdir "$lock_dir" 2> /dev/null; then
+    if mkdir "${lock_dir}" 2> /dev/null; then
         readonly script_lock="$lock_dir"
         verbose_print "Acquired script lock: $script_lock"
     else
@@ -417,7 +471,7 @@ function script_usage() {
 Options to jlenv:
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
-    -nc|--no-colour             Disables colour output
+    -nc|--no-colo(u)r           Disables colour output
     -cr|--cron                  Run silently unless we encounter an error
 
 EOF
@@ -446,7 +500,7 @@ function parse_params() {
             -v|--verbose)
                 verbose_setup
                 ;;
-            -nc|--no-colour)
+            -nc|--no-colour|--no-color)
                 no_colour=true
                 ;;
             -cr|--cron)
@@ -673,10 +727,10 @@ function main() {
     script_defaults
 
     script_init "$@"
-    parse_params "$@"
     cron_init
-    colour_init
-    lock_init system
+    # colour_init
+    # lock_init user
+    parse_params "$@"
 }
 
 #####################################################################
