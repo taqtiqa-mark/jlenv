@@ -2,8 +2,244 @@
 # Summary: List hook scripts for a given jlenv command
 # Usage: jlenv hooks <command>
 
-set -e
+set -o errexit          # Exit on most errors (see the manual)
+set -o errtrace         # Make sure any error trap is inherited
+# set -o nounset          # Disallow expansion of unset variables
+set -o pipefail         # Use last non-zero exit code in a pipeline
+#set -o xtrace          # Trace the execution of the script (debug)
+
+# DESC: Handler for unexpected errors
+# ARGS: $1 (optional): Exit code (defaults to 1)
+# OUTS: None
+function script_trap_err() {
+    local exit_code=1
+
+    # Disable the error trap handler to prevent potential recursion
+    trap - ERR
+
+    # Consider any further errors non-fatal to ensure we run to completion
+    set +o errexit
+    set +o pipefail
+
+    # Validate any provided exit code
+    if [[ ${1-} =~ ^[0-9]+$ ]]; then
+        exit_code="${1}"
+    fi
+
+    # Output debug data if in Cron mode
+    if [[ -n ${cron-} ]]; then
+        # Restore original file output descriptors
+        if [[ -n ${script_output-} ]]; then
+            exec 1>&3 2>&4
+        fi
+
+        # Restore terminal colours
+        printf '%b\n' "$ta_none"
+        # Print basic debugging information
+        printf 'jlenv:  ***** Abnormal termination of script *****\n'
+        printf 'jlenv:  Script Path:            %s\n' "$script_path"
+        printf 'jlenv:  Script Parameters:      %s\n' "$script_params"
+        printf 'jlenv:  Script Exit Code:       %s\n' "$exit_code"
+
+        # Print the script log if we have it. It's possible we may not if we
+        # failed before we even called cron_init(). This can happen if bad
+        # parameters were passed to the script so we bailed out very early.
+        if [[ -n ${script_output-} ]]; then
+            printf 'jlenv:  Script Output:\n\n%s' "$(cat "$script_output")"
+        else
+            printf 'jlenv:  Script Output:          None (failed before log init)\n'
+        fi
+    fi
+
+    # Exit with failure status
+    exit "${exit_code}"
+}
+
+
+# DESC: Handler for exiting the script
+# ARGS: None
+# OUTS: None
+function script_trap_exit() {
+    cd "${orig_cwd:-}"
+
+    # Remove Cron mode script log
+    if [[ -n ${cron-} && -f ${script_output-} ]]; then
+        rm "$script_output"
+    fi
+
+    # Remove script execution lock
+    if [[ -d ${script_lock-} ]]; then
+        rmdir "$script_lock"
+    fi
+
+    # Restore terminal colours
+    printf '%b' "${ta_none:-}"
+}
+
+
+# DESC: Exit script with the given message
+# ARGS: $1 (required): Message to print on exit
+#       $2 (optional): Exit code (defaults to 0)
+# OUTS: None
+function script_exit() {
+    if [[ $# -eq 1 ]]; then
+        printf 'jlenv:  %s\n' "${1}"
+        exit 0
+    fi
+
+    if [[ ${2-} =~ ^[0-9]+$ ]]; then
+        printf 'jlenv:  %b\n' "${1}"
+        # If we've been provided a non-zero exit code run the error trap
+        if [[ $2 -ne 0 ]]; then
+            script_trap_err "${2}"
+        else
+            exit 0
+        fi
+    fi
+
+    script_exit 'Missing required argument to $(script_exit)' 2
+}
+
+
+# DESC: Generic script initialisation
+# ARGS: $@ (optional): Arguments provided to the script
+# OUTS: $orig_cwd: The current working directory when the script was run
+#       $script_path: The full path to the script
+#       $script_dir: The directory path of the script
+#       $script_name: The file name of the script
+#       $script_params: The original parameters provided to the script
+#       $ta_none: The ANSI control code to reset all text attributes
+# NOTE: $script_path only contains the path that was used to call the script
+#       and will not resolve any symlinks which may be present in the path.
+#       You can use a tool like realpath to obtain the "true" path. The same
+#       caveat applies to both the $script_dir and $script_name variables.
+function script_init() {
+    # Useful paths
+    readonly orig_cwd="$(pwd -P)"
+    readonly script_path="$(abs_dir_file "${BASH_SOURCE[0]}")"
+    readonly script_dir="$(abs_dirname "$script_path")"
+    readonly script_name="$(basename "$script_path")"
+    readonly script_params="$*"
+
+    # Important to always set as we use it in the exit handler
+    readonly ta_none="$(tput sgr0 2> /dev/null || true)"
+}
+
+# DESC: Setup the GNU coreutils readlink
+# ARGS: None.
+# OUTS: None.
+setup_readlink(){
+  readonly READLINK=$(type -p greadlink readlink | head -1)
+  # We don't test here since jlenv has done so.
+}
+
+# DESC: Print value of a symbolic link or canonical file name.
+#       Canonicalise by following every symlink in every component
+#       of the given name recursively; all but the last component
+#       must exist.
+# ARGS: $1 (required): absolute filename
+# OUTS: Resolved path of any link to filename
+# NOTE: Require GNU coreutils' $(readlink).
+resolve_link() {
+    $READLINK --canonicalize "$1"
+}
+
+# DESC: Absolute directory/filename path from relative path/filename.
+# ARGS: $1 (required): relative directory/filename
+# OUTS: Absolute directory/filename
+# NOTE: Does not require GNU coreutils' $(readlink) or $(realpath).
+#       Usage examples, assume folder is: /parent/cur
+#       abs_dir_file file.txt              => /parent/cur/file.txt
+#       abs_dir_file .                     => /parent/cur/file.txt
+#       abs_dir_file ..                    => /parent/file.txt
+#       abs_dir_file ../dir/file.txt       => /parent/dir/file.txt
+#       abs_dir_file /dir/../dir2/file.txt => /parent/dir2/file.txt
+#       abs_dir_file ../dir/../dir2        => /parent/dir2          # anything cd can handle
+#       abs_dir_file doesnotexist          =>                       # empty result if file/dir does not exist
+#       abs_dir_file /file.txt             => /file.txt             # handle absolute path input
+# REFS: 
+#       https://stackoverflow.com/a/21951256/152860
+#       https://stackoverflow.com/a/7577209/152860
+#       https://stackoverflow.com/a/15780028/152860
+#       https://stackoverflow.com/a/23002317/152860
+abs_dir_file() {
+  local thePath
+  declare -a outp
+  if [[ ! "$1" =~ ^/ ]];then
+    thePath="$PWD/$1"
+  else
+    thePath="$1"
+  fi
+  # Parse the path.  Result is possibly a file name.
+  fn=$(
+      echo "$thePath"|(
+      IFS=/
+      read -a parr
+      for i in "${parr[@]}";do
+        case "$i" in
+        ''|.) continue ;;
+        ..)
+          len=$(count_array "${outp[@]+"${outp[@]}"}")
+          if ((len==0));then
+            continue
+          else
+            unset -v "outp[ $((len-1)) ]"
+          fi
+          ;;
+        *)
+          # Undefined variable error workaround for:
+          # len=${#outp[@]}
+          #
+          # 1. https://stackoverflow.com/a/7577209/152860
+          # Use ${outp[@]+"${outp[@]}"} instead of "${outp[@]}"
+          len=$(count_array "${outp[@]+"${outp[@]}"}")
+          outp[$len]="$i"
+          ;;
+        esac
+      done
+      echo /"${outp[*]}"
+    )
+  )
+  echo "${fn}"
+}
+
+# https://stackoverflow.com/a/15780028/152860
+count_array() { echo $# ; };
+
+# DESC: Absolute directory from resolved absolute filename or relative folder.
+# ARGS: $1 (required): resolved absolute filename, or relative folder
+# OUTS: Absolute path.
+# NOTE: Does not require GNU coreutils' $(readlink) or $(realpath).
+#       Usage examples, assume inside /parent/cur
+#       abs_dirname file.txt              => /parent/cur
+#       abs_dirname .                     => /parent/cur
+#       abs_dirname ..                    => /parent
+#       abs_dirname ../dir/file.txt       => /parent/dir
+#       abs_dirname /dir/../dir2/file.txt => /parent/dir2
+#       abs_dirname ../dir/../dir2        => /parent/dir2          # anything cd can handle
+#       abs_dirname doesnotexist          =>                       # empty result if file/dir does not exist
+#       abs_dirname /file.txt             => /                     # handle absolute path input
+# REFS: 
+#       https://stackoverflow.com/a/21951256/152860
+#       https://stackoverflow.com/a/7577209/152860
+#       https://stackoverflow.com/a/15780028/152860
+#       https://stackoverflow.com/a/23002317/152860
+
+abs_dirname() {
+  if [ -f "${1}" ] 
+  then
+    # file
+    echo "$(cd -P -e "$(dirname "${1}")"; pwd -P)"
+  else
+    # folder
+    echo "$(cd -P -e "${1}"; pwd -P)"
+  fi
+}
+
 [ -n "$JLENV_DEBUG" ] && set -x
+
+setup_readlink
+script_init
 
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
@@ -25,8 +261,9 @@ IFS=: hook_paths=($JLENV_HOOK_PATH)
 
 shopt -s nullglob
 for path in "${hook_paths[@]}"; do
-  for script in "$path/$JLENV_COMMAND"/*.bash; do
-    realpath "$script"
+  for script in "${path}/${JLENV_COMMAND}"/*.bash; do
+    f="$(abs_dir_file "${script}")"
+    resolve_link "${f}"
   done
 done
 shopt -u nullglob
