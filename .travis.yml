@@ -1,7 +1,5 @@
 sudo: false
 language: c
-env:
-  - JLENV_NATIVE_EXT=1
 script:
   # - shellcheck etc/jlenv.d/exec/*
   # - shellcheck libexec/*

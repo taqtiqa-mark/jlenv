@@ -604,11 +604,10 @@ setup_jlenv_dir() {
 # ARGS: None.
 # OUTS: None.
 setup_path() {
-  bin_path="$(abs_dirname "$0")"
   for plugin_bin in "${JLENV_ROOT}/plugins/"*/bin; do
     PATH="${plugin_bin}:${PATH}"
   done
-  export PATH="${bin_path}:${PATH}"
+  export PATH="${script_dir}:${PATH}"
 }
 
 # DESC: Setup the JLENV_HOOK_PATH environment variable.

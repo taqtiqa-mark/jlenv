@@ -39,12 +39,6 @@ function script_init() {
 
 script_init
 
-# Build the bash extension
-if [ "${JLENV_NATIVE_EXT:-false}" = "true" ]; then
-  src/configure
-  make -C src
-fi
-
 # Setup the bats environment for testing.
 if [ -d libs/bats ] && [ -d libs/bats-assert ] && [ -d libs/bats-file ] && [ -d libs/bats-mock ] && [ -d libs/bats-support ]
 then

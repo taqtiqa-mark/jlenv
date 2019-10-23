@@ -21,31 +21,6 @@ if [ -z "$JLENV_COMMAND" ]; then
   exit 1
 fi
 
-READLINK=$(type -P greadlink readlink | head -1)
-if [ -z "$READLINK" ]; then
-  echo "jlenv: cannot find readlink - are you missing GNU coreutils?" >&2
-  exit 1
-fi
-
-resolve_link() {
-  $READLINK "$1"
-}
-
-realpath() {
-  local cwd="$PWD"
-  local path="$1"
-  local name
-
-  while [ -n "$path" ]; do
-    name="${path##*/}"
-    [ "$name" = "$path" ] || cd "${path%/*}"
-    path="$(resolve_link "$name" || true)"
-  done
-
-  echo "${PWD}/$name"
-  cd "$cwd"
-}
-
 IFS=: hook_paths=($JLENV_HOOK_PATH)
 
 shopt -s nullglob
