@@ -76,8 +76,14 @@ jlenv:  No such command: $(does-not-exist)
 OUT
 }
 
-@test "default JLENV_ROOT" {
+@test "default JLENV_ROOT when inherited as empty string" {
   JLENV_ROOT="" HOME=/home/mislav run jlenv root
+  assert_success
+  assert_output '/home/mislav/.jlenv'
+}
+
+@test "default JLENV_ROOT when inherited as null" {
+  JLENV_ROOT= HOME=/home/mislav run jlenv root
   assert_success
   assert_output '/home/mislav/.jlenv'
 }
@@ -105,7 +111,9 @@ OUT
   assert [ ! -d "$dir" ]
   JLENV_DIR="$dir" run jlenv echo JLENV_DIR
   assert_failure
-  assert_output "jlenv:  Cannot change working directory to \$($dir)"
+  assert_output --partial --stdin <<OUT
+jlenv:  Cannot change working directory to \$(${dir})
+OUT
 }
 
 @test "adds its own libexec to PATH" {

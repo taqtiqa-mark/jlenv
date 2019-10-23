@@ -124,9 +124,9 @@ function script_exit() {
 #       caveat applies to both the $script_dir and $script_name variables.
 function script_init() {
     # Useful paths
-    readonly orig_cwd="$PWD"
-    readonly script_path="${BASH_SOURCE[0]}"
-    readonly script_dir="$(dirname "$script_path")"
+    readonly orig_cwd="$(pwd -P)"
+    readonly script_path="$(abs_dir_file "${BASH_SOURCE[0]}")"
+    readonly script_dir="$(abs_dirname "$script_path")"
     readonly script_name="$(basename "$script_path")"
     readonly script_params="$*"
 
@@ -513,6 +513,7 @@ function parse_params() {
 
                 if [[ $# -ge 1 ]]; 
                 then 
+                  # stash the current parameter into ${arg} and lookahead 1.
                   arg="${1-}"
                   shift 1
                 fi
@@ -532,6 +533,7 @@ function parse_params() {
 }
 
 # DESC: Set environement variable default values.
+#       Resolves relative and symlinked paths
 #       Variables should not be referenced using ${variable:-default}.
 #       Variables should not be tested using:
 #         1. [ -n "${variable}" ]
@@ -542,7 +544,7 @@ function parse_params() {
 # OUTS: None.
 script_defaults() {
   setup_jlenv_debug
-  # setup_readlink
+  setup_readlink
   setup_jlenv_root
   setup_jlenv_dir
   shopt -s nullglob
@@ -570,6 +572,28 @@ setup_jlenv_debug() {
       ;;
   esac
 }
+
+# DESC: Setup the GNU coreutils readlink
+# ARGS: None.
+# OUTS: None.
+setup_readlink(){
+  readonly READLINK=$(type -p greadlink readlink | head -1)
+  if [ -z "$READLINK" ]; then
+    echo "jlenv: cannot find readlink - are you missing GNU coreutils?" >&2
+    exit 1
+  fi
+}
+
+# DESC: Print value of a symbolic link or canonical file name.
+#       Canonicalise by following every symlink in every component
+#       of the given name recursively; all but the last component
+#       must exist.
+# ARGS: $1 (required): absolute filename
+# OUTS: Resolved path of any link to filename
+# NOTE: Require GNU coreutils' $(readlink).
+resolve_link() {
+    $READLINK --canonicalize "$1"
+  }
 
 # DESC: Setup the JLENV_ROOT environment variable.  Default value is set if not
 #       already set.
@@ -614,11 +638,10 @@ setup_path() {
 # ARGS: None.
 # OUTS: None.
 setup_jlenv_hook_path() {
-  bin_path="$(abs_dirname "$0")"
   JLENV_HOOK_PATH="${JLENV_HOOK_PATH:-}:${JLENV_ROOT}/jlenv.d"
-  if [ "${bin_path%/*}" != "$JLENV_ROOT" ]; then
+  if [ "${script_dir%/*}" != "$JLENV_ROOT" ]; then
     # Add jlenv's own `jlenv.d` unless jlenv was cloned to JLENV_ROOT
-    JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${bin_path%/*}/jlenv.d"
+    JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${script_dir%/*}/jlenv.d"
   fi
   JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:/usr/local/etc/jlenv.d:/etc/jlenv.d:/usr/lib/jlenv/hooks"
   for plugin_hook in "${JLENV_ROOT}/plugins/"*/etc/jlenv.d; do
@@ -638,34 +661,25 @@ verbose_setup() {
   set -o xtrace          # Trace the execution of the script (debug)
 }
 
-# DESC: Recursively follow symlinks in every component of the given file name.
-#       All but the last component must exist.
-# ARGS: $@ (required): The file to be dereferenced.
-# OUTS: Value of a canonical file name
-resolve_link() {
-  res=$(command readlink --canonicalize "$1")
-  echo "$res"
-}
-
-# DESC: Generate absolute directory path from relative path.
-# ARGS: $1 (required): relative filename
-# OUTS: Absolute path
+# DESC: Absolute directory/filename path from relative path/filename.
+# ARGS: $1 (required): relative directory/filename
+# OUTS: Absolute directory/filename
 # NOTE: Does not require GNU coreutils' $(readlink) or $(realpath).
-#       Usage examples, assume inside /parent/cur
-#       abs_dirname file.txt              => /parent/cur
-#       abs_dirname .                     => /parent/cur
-#       abs_dirname ..                    => /parent
-#       abs_dirname ../dir/file.txt       => /parent/dir
-#       abs_dirname /dir/../dir2/file.txt => /parent/dir2
-#       abs_dirname ../dir/../dir2        => /parent/dir2          # anything cd can handle
-#       abs_dirname doesnotexist          =>                       # empty result if file/dir does not exist
-#       abs_dirname /file.txt             => /                     # handle absolute path input
+#       Usage examples, assume folder is: /parent/cur
+#       abs_dir_file file.txt              => /parent/cur
+#       abs_dir_file .                     => /parent/cur
+#       abs_dir_file ..                    => /parent
+#       abs_dir_file ../dir/file.txt       => /parent/dir
+#       abs_dir_file /dir/../dir2/file.txt => /parent/dir2
+#       abs_dir_file ../dir/../dir2        => /parent/dir2          # anything cd can handle
+#       abs_dir_file doesnotexist          =>                       # empty result if file/dir does not exist
+#       abs_dir_file /file.txt             => /                     # handle absolute path input
 # REFS: 
 #       https://stackoverflow.com/a/21951256/152860
 #       https://stackoverflow.com/a/7577209/152860
 #       https://stackoverflow.com/a/15780028/152860
 #       https://stackoverflow.com/a/23002317/152860
-abs_dirname(){
+abs_dir_file(){
   local thePath
   declare -a outp
   if [[ ! "$1" =~ ^/ ]];then
@@ -686,7 +700,7 @@ abs_dirname(){
           if ((len==0));then
             continue
           else
-            unset -v 'outp[ $((len-1)) ]'
+            unset -v "outp[ $((len-1)) ]"
           fi
           ;;
         *)
@@ -703,18 +717,41 @@ abs_dirname(){
       echo /"${outp[*]}"
     )
   )
-  if [ -f "${fn}" ] 
-  then
-    # file
-    echo "$(cd "$(dirname "${fn}")"; pwd)"
-  else
-    # folder
-    echo "$(cd "${fn}"; pwd)"
-  fi
+  echo "${fn}"
 }
 
 # https://stackoverflow.com/a/15780028/152860
 count_array() { echo $# ; };
+
+# DESC: Absolute directory from resolved absolute filename or relative folder.
+# ARGS: $1 (required): resolved absolute filename, or relative folder
+# OUTS: Absolute path.
+# NOTE: Does not require GNU coreutils' $(readlink) or $(realpath).
+#       Usage examples, assume inside /parent/cur
+#       abs_dirname file.txt              => /parent/cur
+#       abs_dirname .                     => /parent/cur
+#       abs_dirname ..                    => /parent
+#       abs_dirname ../dir/file.txt       => /parent/dir
+#       abs_dirname /dir/../dir2/file.txt => /parent/dir2
+#       abs_dirname ../dir/../dir2        => /parent/dir2          # anything cd can handle
+#       abs_dirname doesnotexist          =>                       # empty result if file/dir does not exist
+#       abs_dirname /file.txt             => /                     # handle absolute path input
+# REFS: 
+#       https://stackoverflow.com/a/21951256/152860
+#       https://stackoverflow.com/a/7577209/152860
+#       https://stackoverflow.com/a/15780028/152860
+#       https://stackoverflow.com/a/23002317/152860
+
+abs_dirname() {
+  if [ -f "${1}" ] 
+  then
+    # file
+    echo "$(cd -P -e "$(dirname "${1}")"; pwd -P)"
+  else
+    # folder
+    echo "$(cd -P -e "${1}"; pwd -P)"
+  fi
+}
 
 # DESC: Main control flow
 # ARGS: $@ (optional): Arguments provided to the script
@@ -723,9 +760,8 @@ function main() {
     trap script_trap_err ERR
     trap script_trap_exit EXIT
 
-    script_defaults
-
     script_init "$@"
+    script_defaults
     cron_init
     # colour_init
     # lock_init user
