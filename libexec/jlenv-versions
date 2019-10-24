@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# Summary: List all Julia versions available to jlenv
-# Usage: jlenv versions [--bare] [--skip-aliases]
 #
-# Lists all Julia versions found in `$JLENV_ROOT/versions/*'.
+# Summary: List all Julia versions available to jlenv
+#
+# Usage: jlenv [<opts>] versions [--bare] [--skip-aliases]
+#
+# Lists all Julia versions known to jlenv, that is, found in 
+# `${JLENV_ROOT}/versions/*`.
+# Shows an asterisk next to the currently active version.
+#
+# Options:
+#   --bare           Display only the version numbers
+#   --skip-aliases:  Do not list versions that have been symlinked.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

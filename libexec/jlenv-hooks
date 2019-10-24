@@ -1,6 +1,28 @@
 #!/usr/bin/env bash
+# 
 # Summary: List hook scripts for a given jlenv command
-# Usage: jlenv hooks <command>
+#
+# Usage: jlenv [<opts>] hooks <command>
+#
+# Hooks are bash scripts named `HOOK_NAME/*.bash`, where "HOOK_NAME" is one of:
+# * `exec`
+# * `rehash`
+# * `version-name`
+# * `version-origin`
+# * `which`
+#
+# Hooks are looked for in ${JLENV_HOOK_PATH}, which is composed of:
+# 1. `$JLENV_HOOK_PATH` (external value)
+# 2. `$JLENV_ROOT/jlenv.d`
+# 3. `/usr/local/etc/jlenv.d`
+# 4. `/etc/jlenv.d`
+# 5. `/usr/lib/jlenv/hooks`
+# 6. `$JLENV_ROOT/plugins/*/etc/jlenv.d`
+#
+# Hook scripts are executed at specific points during jlenv operation.
+# They provide a low-level entry point for integration with jlenv's functionality.
+# To get a better understanding of the possibilities with hooks, read the source
+# code of jlenv's hook-enabled commands listed above.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:
@@ -125,13 +147,16 @@ function script_exit() {
 #       caveat applies to both the $script_dir and $script_name variables.
 function script_init() {
     # Useful paths
+    readonly jlenv_cmd_orig_cwd="$(pwd -P)"
+    readonly jlenv_cmd_path="$(resolve_path "${BASH_SOURCE[0]}")"
+    readonly jlenv_cmd_dir="$(dirname "$jlenv_cmd_path")"
+    readonly jlenv_cmd_name="$(basename "$jlenv_cmd_path")"
     readonly jlenv_cmd_args="$*"
 }
 
 [ -n "$JLENV_DEBUG" ] && set -x
 
-setup_readlink
-script_init
+script_init "$@"
 
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
@@ -154,7 +179,7 @@ IFS=: hook_paths=($JLENV_HOOK_PATH)
 shopt -s nullglob
 for path in "${hook_paths[@]}"; do
   for script in "${path}/${JLENV_COMMAND}"/*.bash; do
-    f="$(abs_dir_file "${script}")"
+    f="$(resolve_path "${script}")"
     resolve_link "${f}"
   done
 done

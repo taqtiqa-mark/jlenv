@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# Usage: jlenv version-file-read <file>
+#
+# Summary Read version number from given <file>
+#
+# Usage: jlenv [<opts>] version-file-read <file>
+#
+# This is a low level utility command.  Primarily used internally by jlenv.
+# General users are unlikely to use this command.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

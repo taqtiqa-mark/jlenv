@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
+# 
 # Summary: Display prefix for a Julia version
-# Usage: jlenv prefix [<version>]
+# 
+# Usage: jlenv [<opts>] prefix [<version>]
 #
 # Displays the directory where a Julia version is installed. If no
-# version is given, `jlenv prefix' displays the location of the
+# version is given, $(jlenv prefix) displays the location of the
 # currently selected version.
 
 # Import functions shared between jlenv scripts and plugins.

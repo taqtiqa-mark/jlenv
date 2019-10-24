@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
+#
 # Summary: Display the root directory where versions and shims are kept
+#
+# Usage: 
+#
+# Resolves relative path elements to their absolute value.
+# Does not resolve symlinks.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

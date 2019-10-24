@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
+#
 # Summary: Explain how the current Julia version is set
+#
+# Usage: jlenv [<opts>] version origin
+#
+# Sets JLENV_VERSION_ORIGIN and indicates if the current Julia version was
+# set via:
+#   1. Environment variable ${JLENV_VERSION}
+#   2. File .julia-version
+#   3. Globally from "${JLENV_ROOT}/version"
+#
+# This is a low level utility command.  Primarily used internally by jlenv.
+# General users are unlikely to use this command.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

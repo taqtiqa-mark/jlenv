@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
+#
 # Summary: Show the current Julia version
+#
+# Usage: jlenv [<opts>] version-name
+#
+# This is convenience script that shows only the version of the current Julia.
+# This script is also extensively employed in jlenv internally.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

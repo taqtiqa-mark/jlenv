@@ -2,10 +2,10 @@
 #
 # Summary: Display the full path to an executable
 #
-# Usage: jlenv which <command>
+# Usage: jlenv [<opts>] which <command>
 #
 # Displays the full path to the executable that jlenv will invoke when
-# you run the given command.
+# you run the given command.  Symlinks in paths are not resolved/looked up.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

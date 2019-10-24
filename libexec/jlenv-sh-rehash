@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#
+# Summary: Rehash jlenv shims (run this after installing executables)
+#
+# Usage: jlenv [<opts>] rehash
+#
+# Installs shims for all Julia executables known to jlenv (i.e.,
+# `~/.jlenv/versions/*/bin/*`). Run this command after you install a new
+# version of Julia, or install a gem that provides executables.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

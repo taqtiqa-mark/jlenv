@@ -2,13 +2,13 @@
 #
 # Summary: Set or show the global Julia version
 #
-# Usage: jlenv global <version>
+# Usage: jlenv [<opts>] global <semver>
 #
 # Sets the global Julia version. You can override the global version at
 # any time by setting a directory-specific version with `jlenv local'
 # or by setting the `JLENV_VERSION' environment variable.
 #
-# <version> should be a string matching a Julia version known to jlenv.
+# <semver> should be a string matching a Julia version known to jlenv.
 # The special version string `system' will use your default system Julia.
 # Run `jlenv versions' for a list of available Julia versions.
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+#
 # Summary: Configure the shell environment for jlenv
+#
 # Usage: eval "$(jlenv init - [--no-rehash] [<shell>])"
+#
+# This command produces template scripts to initialize jlenv.  
+# It also installs the shell completion scripts.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

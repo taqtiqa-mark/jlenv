@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# Summary: List all Julia versions that contain the given executable
-# Usage: jlenv whence [--path] <command>
+#
+# Summary: List Julia version numbers that contain the given executable
+#
+# Usage: jlenv [<opts>] whence [--path] <command>
+#
+# The list is a simple version list, similar to $(jlenv versions --bare).
+# 
+# Options:
+#   --path  Print the path to the version(s) of Julia.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

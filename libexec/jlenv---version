@@ -8,9 +8,11 @@
 # current revision from git, if available.
 #
 # The format of the git revision is:
-#   <version>-<num_commits>-<git_sha>
-# where `num_commits` is the number of commits since `version` was
-# tagged.
+#
+#    <semver>-<num_commits>-<git_sha>
+#
+# where `num_commits` is the number of commits since the semantic version
+# number `semver` was tagged.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

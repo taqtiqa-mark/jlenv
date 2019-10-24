@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
-# Usage: jlenv completions <command> [arg1 arg2...]
+#
+# Summary: Produce a wordlist of (sub-)commands for shell <tab>-completion.
+#
+# Usage: jlenv [<opts>] completions <command> [sub-cmd1 sub-cmd2...]
+#
+# This is a low-level system command and general users are unlikely to
+# employ its fusnctionality.
+# 
+# This command is called by shell completion script functions.
+# Examples in this repository:
+#   1. ./completions/jlenv.bash
+#   2. ./completions/jlenv.fish
+#   3. ./completions/jlenv.zsh
+ 
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

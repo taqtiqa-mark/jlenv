@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
+#
 # Summary: List all available jlenv commands
-# Usage: jlenv commands [--sh|--no-sh]
+#
+# Usage: jlenv [<opts>] commands [--sh|--no-sh]
+#
+# Produce a list of jlenv commands.  This is used internally to provide
+# shell <tab>-completion.
+#
+# See also:  jlenv-completions
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

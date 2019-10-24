@@ -6,12 +6,6 @@
 #
 # Runs an executable by first preparing PATH so that the selected Julia
 # version's `bin' directory is at the front.
-#
-# For example, if the currently selected Julia version is 0.6.0:
-#   jlenv exec bundle install
-#
-# is equivalent to:
-#   PATH="$JLENV_ROOT/versions/0.6.0/bin:$PATH" bundle install
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

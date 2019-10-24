@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
+#
 # Summary: List existing jlenv shims
-# Usage: jlenv shims [--short]
+#
+# Usage: jlenv [<opts>] shims [--short]
+#
+# Prints the list of shims installed for the current version of Julia.
+#
+# Options:
+#    --short  Print the executable name only, with no path.
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:

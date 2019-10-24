@@ -102,8 +102,13 @@ $ jlenv version
 
 ## jlenv versions
 
-Lists all Julia versions known to jlenv, and shows an asterisk next to
-the currently active version.
+Lists all Julia versions known to jlenv, that is, found in
+`${JLENV_ROOT}/versions/*`.
+Shows an asterisk next to the currently active version.
+
+Options:
+  --bare           Display only the version numbers
+  --skip-aliases:  Do not list versions that have been symlinked.
 
 ```bash
 $ jlenv versions
