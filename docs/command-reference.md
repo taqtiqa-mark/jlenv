@@ -5,17 +5,36 @@
 ## Page Contents
 
 * [Command Reference](#command-reference)
-  * [jlenv local](#jlenv-local)
   * [jlenv global](#jlenv-global)
-  * [jlenv shell](#jlenv-shell)
-  * [jlenv versions](#jlenv-versions)
-  * [jlenv version](#jlenv-version)
+  * [jlenv local](#jlenv-local)
   * [jlenv rehash](#jlenv-rehash)
-  * [jlenv which](#jlenv-which)
+  * [jlenv shell](#jlenv-shell)
+  * [jlenv version](#jlenv-version)
+  * [jlenv versions](#jlenv-versions)
   * [jlenv whence](#jlenv-whence)
+  * [jlenv which](#jlenv-which)
 
 Like `git`, the `jlenv` command delegates to subcommands based on its
 first argument. The most common subcommands are:
+
+## jlenv global
+
+Sets the global version of Julia to be used in all shells by writing
+the version name to the `~/.jlenv/version` file. This version can be
+overridden by an application-specific `.julia-version` file, or by
+setting the `JLENV_VERSION` environment variable.
+
+```bash
+jlenv global v0.6.0
+```
+
+The special version name `system` tells jlenv to use the system Julia
+(detected by searching your `$PATH`).
+
+When run without a version number, `jlenv global` reports the
+currently configured global version.
+
+[Return to ToC>]((#command-reference))
 
 ## jlenv local
 
@@ -38,22 +57,15 @@ jlenv local --unset
 
 [Return to ToC>]((#command-reference))
 
-## jlenv global
+## jlenv rehash
 
-Sets the global version of Julia to be used in all shells by writing
-the version name to the `~/.jlenv/version` file. This version can be
-overridden by an application-specific `.julia-version` file, or by
-setting the `JLENV_VERSION` environment variable.
+Installs shims for all Julia executables known to jlenv (i.e.,
+`~/.jlenv/versions/*/bin/*`). Run this command after you install a new
+version of Julia, or install a gem that provides commands.
 
 ```bash
-jlenv global v0.6.0
+jlenv rehash
 ```
-
-The special version name `system` tells jlenv to use the system Julia
-(detected by searching your `$PATH`).
-
-When run without a version number, `jlenv global` reports the
-currently configured global version.
 
 [Return to ToC>]((#command-reference))
 
@@ -76,19 +88,6 @@ jlenv shell --unset
 
 [Return to ToC>]((#command-reference))
 
-## jlenv versions
-
-Lists all Julia versions known to jlenv, and shows an asterisk next to
-the currently active version.
-
-```bash
-$ jlenv versions
-    v0.6.0
-  * v0.6.0-rc1 (set by /Users/sam/.jlenv/version)
-```
-
-[Return to ToC>]((#command-reference))
-
 ## jlenv version
 
 Displays the currently active Julia version, along with information on
@@ -101,26 +100,15 @@ $ jlenv version
 
 [Return to ToC>]((#command-reference))
 
-## jlenv rehash
+## jlenv versions
 
-Installs shims for all Julia executables known to jlenv (i.e.,
-`~/.jlenv/versions/*/bin/*`). Run this command after you install a new
-version of Julia, or install a gem that provides commands.
-
-```bash
-jlenv rehash
-```
-
-[Return to ToC>]((#command-reference))
-
-## jlenv which
-
-Displays the full path to the executable that jlenv will invoke when
-you run the given command.
+Lists all Julia versions known to jlenv, and shows an asterisk next to
+the currently active version.
 
 ```bash
-$ jlenv which julia
-  /home/deploy/.jlenv/versions/v1.0.0/bin/julia
+$ jlenv versions
+    v0.6.0
+  * v0.6.0-rc1 (set by /Users/sam/.jlenv/version)
 ```
 
 [Return to ToC>]((#command-reference))
@@ -142,6 +130,18 @@ $ jlenv whence julia
 $ jlenv whence julia
   /tmp/jlenv.y3G/root/versions/0.7/bin/julia
   /tmp/jlenv.y3G/root/versions/2.0/bin/julia
+```
+
+[Return to ToC>]((#command-reference))
+
+## jlenv which
+
+Displays the full path to the executable that jlenv will invoke when
+you run the given command.
+
+```bash
+$ jlenv which julia
+  /home/deploy/.jlenv/versions/v1.0.0/bin/julia
 ```
 
 [Return to ToC>]((#command-reference))
