@@ -36,6 +36,8 @@ configured local version. You can also unset the local version:
 jlenv local --unset
 ```
 
+[Return to ToC>]((#command-reference))
+
 ## jlenv global
 
 Sets the global version of Julia to be used in all shells by writing
@@ -52,6 +54,8 @@ The special version name `system` tells jlenv to use the system Julia
 
 When run without a version number, `jlenv global` reports the
 currently configured global version.
+
+[Return to ToC>]((#command-reference))
 
 ## jlenv shell
 
@@ -70,6 +74,8 @@ value of `JLENV_VERSION`. You can also unset the shell version:
 jlenv shell --unset
 ```
 
+[Return to ToC>]((#command-reference))
+
 ## jlenv versions
 
 Lists all Julia versions known to jlenv, and shows an asterisk next to
@@ -81,6 +87,8 @@ $ jlenv versions
   * v0.6.0-rc1 (set by /Users/sam/.jlenv/version)
 ```
 
+[Return to ToC>]((#command-reference))
+
 ## jlenv version
 
 Displays the currently active Julia version, along with information on
@@ -90,6 +98,8 @@ how it was set.
 $ jlenv version
   v0.6.0 (set by /Users/sam/.jlenv/version)
 ```
+
+[Return to ToC>]((#command-reference))
 
 ## jlenv rehash
 
@@ -101,6 +111,8 @@ version of Julia, or install a gem that provides commands.
 jlenv rehash
 ```
 
+[Return to ToC>]((#command-reference))
+
 ## jlenv which
 
 Displays the full path to the executable that jlenv will invoke when
@@ -111,11 +123,25 @@ $ jlenv which julia
   /home/deploy/.jlenv/versions/v1.0.0/bin/julia
 ```
 
+[Return to ToC>]((#command-reference))
+
 ## jlenv whence
 
 Lists all Julia versions with the given command installed.
+The list is a simple version list, similar to $(jlenv versions --bare).
+
+Options:
+  `--path`  Print the path to the version(s) of Julia.
 
 ```bash
 $ jlenv whence julia
   v0.6.0
 ```
+
+```bash
+$ jlenv whence julia
+  /tmp/jlenv.y3G/root/versions/0.7/bin/julia
+  /tmp/jlenv.y3G/root/versions/2.0/bin/julia
+```
+
+[Return to ToC>]((#command-reference))
