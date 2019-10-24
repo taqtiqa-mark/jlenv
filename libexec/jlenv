@@ -76,9 +76,6 @@ function script_init() {
     readonly jlenv_cmd_dir="$(dirname "$jlenv_cmd_path")"
     readonly jlenv_cmd_name="$(basename "$jlenv_cmd_path")"
     readonly jlenv_cmd_args="$*"
-
-    # Important to always set as we use it in the exit handler
-    #readonly ta_none="$(tput sgr0 2> /dev/null || true)"
 }
 
 # DESC: Full jlenv usage help.
