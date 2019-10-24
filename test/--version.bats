@@ -17,11 +17,11 @@ git_commit() {
   git commit --quiet --allow-empty -m "empty"
 }
 
-@test "default version" {
+@test "default version when not using jlenv repository" {
   assert [ ! -e "$JLENV_ROOT" ]
   run jlenv---version
   assert_success
-  [[ $output == "jlenv "?.?.? ]]
+  assert_output "jlenv not.jlenv.version"
 }
 
 @test "doesn't read version from non-jlenv repo" {
@@ -32,7 +32,7 @@ git_commit() {
 
   run jlenv---version
   assert_success
-  [[ $output == "jlenv "?.?.? ]]
+  assert_output "jlenv not.jlenv.version"
 }
 
 @test "reads version from git repo" {
@@ -44,7 +44,8 @@ git_commit() {
   git_commit
 
   run jlenv---version
-  assert_success "jlenv 0.4.1-2-g$(git rev-parse --short HEAD)"
+  assert_success 
+  assert_output "jlenv 0.4.1-2-g$(git rev-parse --short HEAD)"
 }
 
 @test "prints default version if no tags in git repo" {
@@ -53,5 +54,6 @@ git_commit() {
   git_commit
 
   run jlenv---version
-  [[ $output == "jlenv "?.?.? ]]
+  assert_success
+  assert_output "jlenv not.jlenv.version"
 }
