@@ -38,7 +38,7 @@ Each jlenv command runs with the following environment:
 * `$PATH` - constructed to contain:
   1. jlenv's `libexec` dir with core commands
   2. `$JLENV_ROOT/plugins/*/bin` for plugin commands
-  3. `$PATH` (external value)
+  3. `$PATH` (external values)
 
 ### Calling other commands
 

@@ -8,6 +8,7 @@ Use jlenv to pick a Julia version for your application and guarantee
 that your development environment matches production.
 
 Further [documentation is here](https://jlenv.github.io/jlenv/).
+Changelog is [here](https://jlenv.github.io/jlenv/changelog.md)
 
 **Powerful in development.** Specify your app's Julia version once,
   in a single file. Keep all your teammates on the same page. No
