@@ -26,21 +26,48 @@ load test_helper
   assert_success "$JLENV_TEST_DIR"
 }
 
-@test "prefix for system in /" {
-  export PATH="${BATS_TEST_DIRNAME}/libexec:${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+# NOTE: In making jlenv more robust it is now not possible 
+# to hijack PATH or a function and insert the test dummy jlenv-which in
+# the manner done by the test after this. 
+
+# @test "prefix for system in /" {
+#   PATH="${BATS_TEST_DIRNAME}/libexec:${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
+#   mkdir -p "${BATS_TEST_DIRNAME}/libexec"
+#   cat >"${BATS_TEST_DIRNAME}/libexec/jlenv-which" <<OUT
+# #!/bin/sh
+# echo /bin/julia
+# OUT
+#   chmod +x "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
+#   PATH=${PATH} JLENV_VERSION="system" run jlenv-prefix
+#   assert_success 
+#   assert_output "/"
+#   rm -f "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
+# }
+
+@test "cannot hijack system installation by script function" {
+  function jlenv-which() {
+  echo /bad/user/hijacked/bin/julia
+  }
+  export -f jlenv-which
+  JLENV_VERSION="system" run jlenv-prefix
+  refute_output "/bad/user/hijacked"
+}
+
+@test "cannot hijack system installation by \${PATH}" {
+  PATH="${BATS_TEST_DIRNAME}/libexec:${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
   mkdir -p "${BATS_TEST_DIRNAME}/libexec"
   cat >"${BATS_TEST_DIRNAME}/libexec/jlenv-which" <<OUT
 #!/bin/sh
-echo /bin/julia
+echo /bad/user/hijacked/bin/julia
 OUT
   chmod +x "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
-  JLENV_VERSION="system" run jlenv-prefix
-  assert_success 
-  assert_output "/"
+  PATH=${PATH} JLENV_VERSION="system" run jlenv-prefix
+  refute_output "/bad/user/hijacked"
   rm -f "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
 }
 
 @test "prefix for invalid system" {
   PATH="$(path_without julia)" run jlenv-prefix system
-  assert_failure "jlenv: system version not found in PATH"
+  assert_failure 
+  assert_output "jlenv: system version not found in PATH"
 }

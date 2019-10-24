@@ -32,7 +32,7 @@ elif [ -z "$JLENV_VERSION" ]; then
 fi
 
 if [ "$JLENV_VERSION" = "system" ]; then
-  if JULIA_PATH="$(jlenv-which julia 2>/dev/null)"; then
+  if JULIA_PATH="$(command jlenv-which julia 2>/dev/null)"; then
     JULIA_PATH="${JULIA_PATH%/*}"
     JLENV_PREFIX_PATH="${JULIA_PATH%/bin}"
     echo "${JLENV_PREFIX_PATH:-/}"
