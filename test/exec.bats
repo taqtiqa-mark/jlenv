@@ -16,13 +16,13 @@ create_executable() {
   chmod +x "${bin}/$name"
 }
 
-@test "fails with invalid version" {
+@test "fails when version set by environment variable is not installed" {
   export JLENV_VERSION="2.0"
   run jlenv-exec julia -v
   assert_failure "jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)"
 }
 
-@test "fails with invalid version set from file" {
+@test "fails when uninstalled version set from .julia-version file" {
   mkdir -p "$JLENV_TEST_DIR"
   cd "$JLENV_TEST_DIR"
   echo 1.9 > .julia-version
