@@ -8,7 +8,8 @@
 # to perform what a simple echo 'hello world' would do equally well.
 #######################################################################
 
-source jlenv-shared
+src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source ${src_dir}/jlenv-shared
 
 gsu_dir="$(resolve_path "${gsu_dir:-${BASH_SOURCE[0]%/*}}")"
 
@@ -26,8 +27,31 @@ gsu_errors='
 # man page banner text
 gsu_banner_txt='Robust Julia version management.'
 
+source "${gsu_dir}/jlenv-hooks" 
 source "${gsu_dir}/jlenv-version"
 source "${gsu_dir}/jlenv-version-name"
+source "${gsu_dir}/jlenv-version-origin"
+
+com_hooks()
+{
+    jlenv_hooks "$@"
+    ret=$GSU_SUCCESS
+}
+com_version()
+{
+    jlenv_version "$@"
+    ret=$GSU_SUCCESS
+}
+com_version-name()
+{
+    jlenv_version_name "$@"
+    ret=$GSU_SUCCESS
+}
+com_version-origin()
+{
+    jlenv_version_origin "$@"
+    ret=$GSU_SUCCESS
+}
 
 #####################################################################
 #

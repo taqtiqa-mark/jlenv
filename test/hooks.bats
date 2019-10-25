@@ -5,7 +5,7 @@ load libs/bats-assert/load
 load test_helper
 
 @test "prints usage help given no argument" {
-  run jlenv-hooks
+  run jlenv2 hooks
   assert_failure "Usage: jlenv hooks <command>"
 }
 
@@ -20,7 +20,7 @@ load test_helper
   JLENV_HOOK_PATH="$path2"
   create_hook exec "bueno.bash"
 
-  JLENV_HOOK_PATH="$path1:$path2" run jlenv-hooks exec
+  JLENV_HOOK_PATH="$path1:$path2" run jlenv2 hooks exec
   assert_success
   assert_line --index 0 "${JLENV_TEST_DIR}/jlenv.d/exec/ahoy.bash"
   assert_line --index 1 "${JLENV_TEST_DIR}/jlenv.d/exec/hello.bash"
@@ -35,7 +35,7 @@ load test_helper
   JLENV_HOOK_PATH="$path2"
   create_hook exec "ahoy.bash"
 
-  JLENV_HOOK_PATH="$path1:$path2" run jlenv-hooks exec
+  JLENV_HOOK_PATH="$path1:$path2" run jlenv2 hooks exec
   assert_success
   assert_line --index 0 "${JLENV_TEST_DIR}/my hooks/jlenv.d/exec/hello.bash"
   assert_line --index 1 "${JLENV_TEST_DIR}/etc/jlenv hooks/exec/ahoy.bash"
@@ -46,7 +46,7 @@ load test_helper
   create_hook exec "hello.bash"
   mkdir -p "$HOME"
 
-  JLENV_HOOK_PATH="${HOME}/../jlenv.d" run jlenv-hooks exec
+  JLENV_HOOK_PATH="${HOME}/../jlenv.d" run jlenv2 hooks exec
   assert_success "${JLENV_TEST_DIR}/jlenv.d/exec/hello.bash"
 }
 
@@ -59,7 +59,7 @@ load test_helper
   touch "${path}/exec/bright.sh"
   ln -s "bright.sh" "${path}/exec/world.bash"
 
-  JLENV_HOOK_PATH="$path" run jlenv-hooks exec
+  JLENV_HOOK_PATH="$path" run jlenv2 hooks exec
   assert_success
   assert_line --index 0 "${JLENV_TEST_DIR}/home/hola.bash"
   assert_line --index 1 "${JLENV_TEST_DIR}/jlenv.d/exec/bright.sh"

@@ -1,186 +1,53 @@
 #!/usr/bin/env bash
-# 
-# Summary: List hook scripts for a given jlenv command
-#
-# Usage: jlenv [<opts>] hooks <command>
-#
-# Hooks are bash scripts named `HOOK_NAME/*.bash`, where "HOOK_NAME" is one of:
-# * `exec`
-# * `rehash`
-# * `version-name`
-# * `version-origin`
-# * `which`
-#
-# Hooks are looked for in ${JLENV_HOOK_PATH}, which is composed of:
-# 1. `$JLENV_HOOK_PATH` (external value)
-# 2. `$JLENV_ROOT/jlenv.d`
-# 3. `/usr/local/etc/jlenv.d`
-# 4. `/etc/jlenv.d`
-# 5. `/usr/lib/jlenv/hooks`
-# 6. `$JLENV_ROOT/plugins/*/etc/jlenv.d`
-#
-# Hook scripts are executed at specific points during jlenv operation.
-# They provide a low-level entry point for integration with jlenv's functionality.
-# To get a better understanding of the possibilities with hooks, read the source
-# code of jlenv's hook-enabled commands listed above.
-
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
-
-set -o errexit          # Exit on most errors (see the manual)
-set -o errtrace         # Make sure any error trap is inherited
-# set -o nounset          # Disallow expansion of unset variables
-set -o pipefail         # Use last non-zero exit code in a pipeline
-#set -o xtrace          # Trace the execution of the script (debug)
-
-# DESC: Handler for unexpected errors
-# ARGS: $1 (optional): Exit code (defaults to 1)
-# OUTS: None
-function script_trap_err() {
-    local exit_code=1
-
-    # Disable the error trap handler to prevent potential recursion
-    trap - ERR
-
-    # Consider any further errors non-fatal to ensure we run to completion
-    set +o errexit
-    set +o pipefail
-
-    # Validate any provided exit code
-    if [[ ${1-} =~ ^[0-9]+$ ]]; then
-        exit_code="${1}"
+jlenv_hooks() 
+## List hook scripts for a given jlenv command
+##
+## Usage: jlenv [<opts>] hooks <command>
+##
+## Hooks are bash scripts named `HOOK_NAME/*.bash`, where "HOOK_NAME" is one of:
+## * `exec`
+## * `rehash`
+## * `version-name`
+## * `version-origin`
+## * `which`
+##
+## Hooks are looked for in ${JLENV_HOOK_PATH}, which is composed of:
+## 1. `$JLENV_HOOK_PATH` (external value)
+## 2. `$JLENV_ROOT/jlenv.d`
+## 3. `/usr/local/etc/jlenv.d`
+## 4. `/etc/jlenv.d`
+## 5. `/usr/lib/jlenv/hooks`
+## 6. `$JLENV_ROOT/plugins/*/etc/jlenv.d`
+##
+## Hook scripts are executed at specific points during jlenv operation.
+## They provide a low-level entry point for integration with jlenv's functionality.
+## To get a better understanding of the possibilities with hooks, read the source
+## code of jlenv's hook-enabled commands listed above.
+{   
+    # Provide jlenv completions
+    if [ "$1" = "--complete" ]; then
+        echo exec
+        echo rehash
+        echo version-name
+        echo version-origin
+        echo which
+        exit
     fi
 
-    # Output debug data if in Cron mode
-    if [[ -n ${cron-} ]]; then
-        # Restore original file output descriptors
-        if [[ -n ${script_output-} ]]; then
-            exec 1>&3 2>&4
-        fi
-
-        # Restore terminal colours
-        printf '%b\n' "$ta_none"
-        # Print basic debugging information
-        printf 'jlenv:  ***** Abnormal termination of script *****\n'
-        printf 'jlenv:  Script Path:            %s\n' "$script_path"
-        printf 'jlenv:  Script Parameters:      %s\n' "$script_params"
-        printf 'jlenv:  Script Exit Code:       %s\n' "$exit_code"
-
-        # Print the script log if we have it. It's possible we may not if we
-        # failed before we even called cron_init(). This can happen if bad
-        # parameters were passed to the script so we bailed out very early.
-        if [[ -n ${script_output-} ]]; then
-            printf 'jlenv:  Script Output:\n\n%s' "$(cat "$script_output")"
-        else
-            printf 'jlenv:  Script Output:          None (failed before log init)\n'
-        fi
+    JLENV_COMMAND="$1"
+    if [ -z "$JLENV_COMMAND" ]; then
+        jlenv-help --usage hooks >&2
+        exit 1
     fi
 
-    # Exit with failure status
-    exit "${exit_code}"
+    IFS=: hook_paths=($JLENV_HOOK_PATH)
+
+    shopt -s nullglob
+    for path in "${hook_paths[@]}"; do
+        for script in "${path}/${JLENV_COMMAND}"/*.bash; do
+            f="$(resolve_path "${script}")"
+            resolve_link "${f}"
+        done
+    done
+    shopt -u nullglob
 }
-
-
-# DESC: Handler for exiting the script
-# ARGS: None
-# OUTS: None
-function script_trap_exit() {
-    cd "${orig_cwd:-}"
-
-    # Remove Cron mode script log
-    if [[ -n ${cron-} && -f ${script_output-} ]]; then
-        rm "$script_output"
-    fi
-
-    # Remove script execution lock
-    if [[ -d ${script_lock-} ]]; then
-        rmdir "$script_lock"
-    fi
-
-    # Restore terminal colours
-    printf '%b' "${ta_none:-}"
-}
-
-
-# DESC: Exit script with the given message
-# ARGS: $1 (required): Message to print on exit
-#       $2 (optional): Exit code (defaults to 0)
-# OUTS: None
-function script_exit() {
-    if [[ $# -eq 1 ]]; then
-        printf 'jlenv:  %s\n' "${1}"
-        exit 0
-    fi
-
-    if [[ ${2-} =~ ^[0-9]+$ ]]; then
-        printf 'jlenv:  %b\n' "${1}"
-        # If we've been provided a non-zero exit code run the error trap
-        if [[ $2 -ne 0 ]]; then
-            script_trap_err "${2}"
-        else
-            exit 0
-        fi
-    fi
-
-    script_exit 'Missing required argument to $(script_exit)' 2
-}
-
-
-# DESC: Generic script initialisation
-# ARGS: $@ (optional): Arguments provided to the script
-# OUTS: $orig_cwd: The current working directory when the script was run
-#       $script_path: The full path to the script
-#       $script_dir: The directory path of the script
-#       $script_name: The file name of the script
-#       $script_params: The original parameters provided to the script
-#       $ta_none: The ANSI control code to reset all text attributes
-# NOTE: $script_path only contains the path that was used to call the script
-#       and will not resolve any symlinks which may be present in the path.
-#       You can use a tool like realpath to obtain the "true" path. The same
-#       caveat applies to both the $script_dir and $script_name variables.
-function script_init() {
-    # Useful paths
-    readonly jlenv_cmd_orig_cwd="$(pwd -P)"
-    readonly jlenv_cmd_path="$(resolve_path "${BASH_SOURCE[0]}")"
-    readonly jlenv_cmd_dir="$(dirname "$jlenv_cmd_path")"
-    readonly jlenv_cmd_name="$(basename "$jlenv_cmd_path")"
-    readonly jlenv_cmd_args="$*"
-}
-
-[ -n "$JLENV_DEBUG" ] && set -x
-
-script_init "$@"
-
-# Provide jlenv completions
-if [ "$1" = "--complete" ]; then
-  echo exec
-  echo rehash
-  echo version-name
-  echo version-origin
-  echo which
-  exit
-fi
-
-JLENV_COMMAND="$1"
-if [ -z "$JLENV_COMMAND" ]; then
-  jlenv-help --usage hooks >&2
-  exit 1
-fi
-
-IFS=: hook_paths=($JLENV_HOOK_PATH)
-
-shopt -s nullglob
-for path in "${hook_paths[@]}"; do
-  for script in "${path}/${JLENV_COMMAND}"/*.bash; do
-    f="$(resolve_path "${script}")"
-    resolve_link "${f}"
-  done
-done
-shopt -u nullglob

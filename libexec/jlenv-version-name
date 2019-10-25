@@ -6,7 +6,7 @@ version_exists() {
 }
 
 
-com_version-name()
+jlenv_version_name()
 ##
 ## Summary: Show the current Julia version
 ##

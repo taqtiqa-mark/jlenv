@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-com_version()
+jlenv_version()
 ##
 ##
 ## Show the current Julia version and how it was selected.
@@ -37,5 +37,4 @@ com_version()
   else
     printf '%s (set by %s)\n' "$(com_version-name)" "$(com_version-origin)"
   fi
-  ret=$GSU_SUCCESS
 }
