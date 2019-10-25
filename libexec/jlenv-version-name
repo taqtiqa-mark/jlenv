@@ -16,13 +16,14 @@ jlenv_version_name()
 ## current Julia.
 ## This script is used extensively within jlenv code.
 {
+  # JLENV_VERSION is null look in the version file.
   if [ -z "$JLENV_VERSION" ]; then
-    JLENV_VERSION_FILE="$(jlenv-version-file)"
-    JLENV_VERSION="$(jlenv-version-file-read "$JLENV_VERSION_FILE" || true)"
+    JLENV_VERSION_FILE="$(com_version-file)"
+    JLENV_VERSION="$(com_version-file-read "$JLENV_VERSION_FILE" || true)"
   fi
 
   OLDIFS="$IFS"
-  IFS=$'\n' scripts=($(jlenv2 hooks version-name))
+  IFS=$'\n' scripts=($(com_hooks com_version-name))
   IFS="$OLDIFS"
   for script in "${scripts[@]}"; do
     source "$script"
@@ -38,7 +39,7 @@ jlenv_version_name()
   elif version_exists "${JLENV_VERSION#julia-}"; then
     echo "${JLENV_VERSION#julia-}"
   else
-    echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(jlenv-version-origin))" >&2
+    echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(com_version-origin))" >&2
     exit 1
   fi
 }
