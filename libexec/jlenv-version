@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 jlenv_version()
 ##
 ##
@@ -16,9 +15,6 @@ jlenv_version()
 ##      -c: Enable cron mode
 ##      -n: Enable no-color mode
 ##
-## Warning: This subcommand may cause the top most line of your
-## terminal to disappear and may cause DATA LOSS in your scrollback
-## buffer. Use with caution.
 {
   # No arguments allowed
   gsu_check_arg_count $# 0 0 

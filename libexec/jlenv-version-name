@@ -12,8 +12,9 @@ jlenv_version_name()
 ##
 ## Usage: jlenv [<opts>] version-name
 ##
-## This is convenience script that shows only the version of the current Julia.
-## This script is also extensively employed in jlenv internally.
+## This is convenience script that shows only the version of the 
+## current Julia.
+## This script is used extensively within jlenv code.
 {
   if [ -z "$JLENV_VERSION" ]; then
     JLENV_VERSION_FILE="$(jlenv-version-file)"
@@ -21,7 +22,7 @@ jlenv_version_name()
   fi
 
   OLDIFS="$IFS"
-  IFS=$'\n' scripts=($(jlenv-hooks version-name))
+  IFS=$'\n' scripts=($(jlenv2 hooks version-name))
   IFS="$OLDIFS"
   for script in "${scripts[@]}"; do
     source "$script"
