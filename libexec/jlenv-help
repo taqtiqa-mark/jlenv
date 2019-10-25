@@ -123,7 +123,7 @@ print_help() {
   eval "$(documentation_for "$command")"
   [ -n "$help" ] || help="$summary"
 
-  if [ -n "$usage" -o -n "$summary" ]; then
+  if [ -n "$usage" ] || [ -n "$summary" ]; then
     if [ -n "$usage" ]; then
       echo "${usage}"
     else
@@ -131,7 +131,7 @@ print_help() {
     fi
     if [ -n "$help" ]; then
       echo
-      echo "${help}"
+      echo -n "${help}"
     fi
   else
     echo "Sorry, this command isn't documented yet." >&2
