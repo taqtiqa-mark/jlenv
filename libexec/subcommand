@@ -1,0 +1,886 @@
+#!/bin/bash
+# Copyright (C) 2006 Andre Noll
+# Licensed under the LGPL, version 3. See COPYING and COPYING.LESSER.
+
+if [[ "$(type -t _gsu_setup)" != "function" ]]; then
+	gsu_dir=${gsu_dir:-${BASH_SOURCE[0]%/*}}
+	. "$gsu_dir/common" || exit 1
+	_gsu_setup
+fi
+
+_gsu_usage()
+{
+	gsu_short_msg "# Usage: $gsu_name command [options]"
+}
+
+# Return an extended regular expression to match against $0.
+#
+# When called without argument, the expression matches all lines which define a
+# subcommand.
+#
+# If an argument is given, the returned expression matches only the subcommand
+# passed as $1. This is useful to tell if a string is a valid subcommand.
+#
+# Regardless of whether an argument is given, the returned expression contains
+# exactly one parenthesized subexpression for matching the command name.
+_gsu_get_command_regex()
+{
+	local cmd="${1:-[-a-zA-Z_0-9]{1,\}}"
+	result="^com_($cmd)\(\)"
+}
+
+_gsu_available_commands()
+{
+	local ere
+
+	_gsu_get_command_regex
+	ere="$result"
+	result="$({
+		printf "help\nman\nprefs\ncomplete\n"
+		sed -Ee '
+			# if line matches, isolate command name
+			s/'"$ere"'/\1/g
+
+			# if there is a match, (print it and) start next cycle
+			t
+
+			# otherwise delete it
+			d
+		' "$0"
+	} | sort | tr '\n' ' ')"
+}
+
+# Check number of arguments.
+#
+# Usage: gsu_check_arg_count <num_given> <num1> [<num2>]
+#
+# Check that <num_given> is between <num1> and <num2> inclusively.
+# If only <num1> ist given, num2 is assumed to be infinity.
+#
+# Examples:
+# 	0 0 no argument allowed
+# 	1 1 exactly one argument required
+# 	0 2 at most two arguments admissible
+# 	2   at least two arguments required
+gsu_check_arg_count()
+{
+	ret=-$E_GSU_BAD_ARG_COUNT
+	if (($# == 2)); then # only num1 is given
+		result="at least $2 args required, $1 given"
+		(($1 < $2)) && return
+		ret=$GSU_SUCCESS
+		return
+	fi
+	# num1 and num2 given
+	result="need at least $2 args, $1 given"
+	(($1 < $2)) && return
+	result="need at most $3 args, $1 given"
+	(($1 > $3)) && return
+	ret=$GSU_SUCCESS
+}
+
+# Wrapper for the bash getopts builtin.
+#
+# Aborts on programming errors such as missing or invalid option string.  On
+# success $result contains shell code that can be eval'ed. For each defined
+# option x, the local variable o_x will be created when calling eval "$result".
+# o_x contains true/false for options without argument and either the empty
+# string or the given argument for options that take an argument.
+#
+# Example:
+# 	gsu_getopts abc:x:y
+# 	eval "$result"
+# 	(($ret < 0)) && return
+#
+# 	[[ "$o_a" = 'true' ]] && echo 'The -a flag was given'
+# 	[[ -n "$o_c" ]] && echo "The -c option was given with arg $o_c"
+gsu_getopts()
+{
+	local i c tab='	' cr='
+'
+
+	gsu_check_arg_count $# 1 1
+	if ((ret < 0)); then
+		gsu_err_msg
+		exit 1
+	fi
+
+	ret=-$E_GSU_GETOPTS
+	result="invalid optstring $1"
+	if [[ -z "$1" ]] || grep -q '::' <<< "$1" ; then
+		gsu_err_msg
+		exit 1
+	fi
+
+	for ((i=0; i < ${#1}; i++)); do
+		c=${1:$i:1}
+		case "$c" in
+		[a-zA-Z:]);;
+		*)
+			ret=-$E_GSU_GETOPTS
+			result="invalid character $c in optstring"
+			gsu_err_msg
+			exit 1
+		esac
+	done
+	result="local _gsu_getopts_opt"
+	for ((i=0; i < ${#1}; i++)); do
+		c1=${1:$i:1}
+		c2=${1:$((i + 1)):1}
+		result+=" o_$c1="
+		if [[ "$c2" = ":" ]]; then
+			let i++
+		else
+			result+="false"
+		fi
+	done
+	result+="
+	OPTIND=1
+	while getopts $1 _gsu_getopts_opt \"\$@\"; do
+		case \"\$_gsu_getopts_opt\" in
+"
+	for ((i=0; i < ${#1}; i++)); do
+		c1=${1:$i:1}
+		c2=${1:$((i + 1)):1}
+		result+="$tab$tab$c1) o_$c1="
+		if [[ "$c2" = ":" ]]; then
+			result+="\"\$OPTARG\""
+			let i++
+		else
+			result+="true"
+		fi
+		result+=";;$cr"
+	done
+	result+="
+		*)
+			ret=-\$E_GSU_GETOPTS
+			result=\"invalid option given\"
+			return
+			;;
+		esac
+	done
+	shift \$((\$OPTIND - 1))
+"
+	ret=$GSU_SUCCESS
+}
+
+_gsu_print_available_commands()
+{
+	local cmd cmds
+	local -i count=0
+
+	_gsu_available_commands
+	cmds="$result"
+	printf 'Available commands:\n'
+	for cmd in $cmds; do
+		printf '%s' "$cmd"
+		let ++count
+		if ((count % 4)); then
+			printf '\t'
+			((${#cmd} < 8)) && printf '\t'
+		else
+			printf '\n'
+		fi
+	done
+	printf '\n'
+}
+
+# Print all options of the given optstring to stdout if the word in the current
+# command line begins with a hyphen character.
+#
+# Returns 0 if the current word does not start with a hyphen, one otherwise.
+gsu_complete_options()
+{
+	local opts="$1" cword="$2" cur opt
+	local -a words
+
+	shift 2
+	words=("$@")
+	cur="${words[$cword]}"
+	ret=0
+	[[ ! "$cur" == -* ]] && return
+
+	for ((i=0; i < ${#opts}; i++)); do
+		opt="${opts:$i:1}"
+		[[ "$opt" == ":" ]] && continue
+		printf "%s" "-$opt "
+	done
+	ret=1
+}
+
+com_prefs_options='e'
+
+_gsu_prefs_txt="
+Print the current preferences.
+
+Usage: prefs [-e]
+
+If -e is given, the config file is opened with the default editor.
+Without options, the command prints out a list of all config variables,
+together with their current value and the default value.
+"
+
+com_prefs()
+{
+	local i conf="${gsu_config_file:=${HOME:-}/.$gsu_name.rc}"
+
+	gsu_getopts "$com_prefs_options"
+	eval "$result"
+	((ret < 0)) && return
+	gsu_check_arg_count $# 0 0
+	((ret < 0)) && return
+
+	if [[ "$o_e" == "true" ]]; then
+		ret=-$E_GSU_MKDIR
+		result="${conf%/*}"
+		mkdir -p "$result"
+		(($? != 0)) && return
+		ret=-$E_GSU_EDITOR
+		result="${EDITOR:-vi}"
+		"$result" "$conf"
+		(($? != 0)) && return
+		ret=$GSU_SUCCESS
+		return
+	fi
+
+	for ((i=0; i < ${#gsu_options[@]}; i++)); do
+		local name= option_type= default_value= required=
+		local description= help_text=
+		eval "${gsu_options[$i]}"
+		eval val='"${'${gsu_config_var_prefix}_$name:-'}"'
+		case "$required" in
+		true|yes)
+			printf "# required"
+			;;
+		*)
+			printf "# optional"
+			;;
+		esac
+		printf " %s: %s" "$option_type" "$description"
+		if [[ "$required" != "yes" && "$required" != "true" ]]; then
+			printf " [%s]" "$default_value"
+		fi
+		echo
+		[[ -n "$help_text" ]] && sed -e '/^[	]*$/d; s/^[ 	]*/#	/g' <<< "$help_text"
+		printf "%s=%s" "$name" "$val"
+		[[ "$val" == "$default_value" ]] && printf " # default"
+		echo
+	done
+}
+
+_gsu_isatty()
+{(
+	exec 3<&1
+	stty 0<&3 &> /dev/null
+)}
+
+complete_prefs()
+{
+	gsu_complete_options "$com_prefs_options" "$@"
+}
+
+_gsu_man_options='m:b:'
+
+complete_man()
+{
+	gsu_complete_options "$_gsu_man_options" "$@"
+	((ret > 0)) && return
+	gsu_cword_is_option_parameter "$_gsu_man_options" "$@"
+	[[ "$result" == 'm' ]] && printf 'roff\ntext\nhtml\n'
+}
+
+_gsu_man_txt='
+Print the manual.
+
+Usage: man [-m <mode>] [-b <browser>]
+
+-m: Set output format (text, roff or html). Default: roff.
+-b: Use the specified browser. Implies html mode.
+
+If stdout is not associated with a terminal device, the command
+dumps the man page to stdout and exits.
+
+Otherwise, it tries to display the manual page as follows. In text
+mode, plain text is piped to $PAGER. In roff mode, the roff output
+is filtered through nroff, then piped to $PAGER. For both formats,
+if $PAGER is unset, less(1) is assumed.
+
+In html mode, html output is written to a temporary file, and this
+file is displayed as a page in the web browser. If -b is not given,
+the command stored in the $BROWSER environment variable is executed
+with the path to the temporary file as an argument. If $BROWSER is
+unset, elinks(1) is assumed.
+'
+
+_gsu_read_line()
+{
+	local -n p="$1"
+	local l OIFS="$IFS"
+
+	IFS=
+	read -r l || return
+	IFS="$OIFS"
+	p="$l"
+}
+
+_gsu_change_roffify_state()
+{
+	local -n statep="$1"
+	local new_state="$2"
+	local old_state="$statep"
+
+	[[ "$old_state" == "$new_state" ]] && return 0
+
+	case "$old_state" in
+	text);;
+	example) printf '.EE\n';;
+	enum) printf '.RE\n';;
+	esac
+	case "$new_state" in
+	text);;
+	example) printf '.EX\n';;
+	enum) printf '.RS 2\n';;
+	esac
+
+	statep="$new_state"
+	return 1
+}
+
+_gsu_print_protected_roff_line()
+{
+	local line="$1"
+	local -i n=0
+
+	while [[ "${line:$n:1}" == ' ' ]]; do
+		let n++
+	done
+	line="${line:$n}"
+	printf '\\&%s\n' "${line//\\/\\\\}"
+}
+
+_gsu_roffify_maindoc()
+{
+	local state='text' TAB='	'
+	local line next_line
+	local -i n
+
+	_gsu_read_line 'line' || return
+	while _gsu_read_line next_line; do
+		if [[ "$next_line" =~ ^(----|====|~~~~) ]]; then # heading
+			printf '.SS %s\n' "$line"
+			_gsu_read_line line || return
+			_gsu_change_roffify_state 'state' 'text'
+			continue
+		fi
+		if [[ "${line:0:1}" == "$TAB" ]]; then # example
+			_gsu_change_roffify_state 'state' 'example'
+			printf '%s\n' "$line"
+			line="$next_line"
+			continue
+		fi
+		n=0
+		while [[ "${line:$n:1}" == ' ' ]]; do
+			let n++
+		done
+		line=${line:$n};
+		if [[ "${line:0:1}" == '*' ]]; then # enum
+			line=${line#\*}
+			_gsu_change_roffify_state 'state' 'enum'
+			printf '\n\(bu %s\n' "$line"
+			line="$next_line"
+			continue
+		fi
+		if [[ "$line" =~ ^$ ]]; then # new paragraph
+			_gsu_change_roffify_state 'state' 'text'
+			printf '.PP\n'
+		else
+			_gsu_print_protected_roff_line "$line"
+		fi
+		line="$next_line"
+	done
+	_gsu_print_protected_roff_line "$line"
+}
+
+_gsu_extract_maindoc()
+{
+	sed -e '1,/^#\{70,\}/d' -e '/^#\{70,\}/,$d' -e 's/^# *//' -e 's/^#//g' "$0"
+}
+
+_gsu_roffify_cmds()
+{
+	local line cmd= desc= state='text' TAB='	'
+
+	while _gsu_read_line line; do
+		if [[ "${line:0:1}" != '#' ]]; then # com_foo()
+			line="${line#com_}"
+			cmd="${line%()}"
+			continue
+		fi
+		line="${line####}"
+		if [[ "$line" =~ ^[[:space:]]*$ ]]; then
+			printf '.PP\n'
+			_gsu_change_roffify_state 'state' 'text'
+			continue
+		fi
+		if [[ -n "$cmd" ]]; then # desc or usage
+			if [[ -z "$desc" ]]; then # desc
+				desc="$line"
+				continue
+			fi
+			# usage
+			_gsu_change_roffify_state 'state' 'text'
+			printf '\n.SS %s \\- %s\n' "$cmd" "$desc"
+			printf '\n.I %s\n'  "$line"
+			cmd=
+			desc=
+			continue
+		fi
+		line="${line# }"
+		if [[ "${line:0:1}" == "$TAB" ]]; then
+			_gsu_change_roffify_state 'state' 'example'
+			_gsu_print_protected_roff_line "$line"
+			continue
+		fi
+		if [[ "$line" == -*:* ]]; then
+			_gsu_change_roffify_state 'state' 'enum'
+			printf '.PP\n.B %s:\n' "${line%%:*}"
+			_gsu_print_protected_roff_line "${line#*:}"
+			continue
+		fi
+		_gsu_print_protected_roff_line "$line"
+	done
+}
+
+_gsu_roffify_autocmd()
+{
+	local cmd="$1" help_txt="$2"
+
+	{
+		printf 'com_%s()\n' "$cmd"
+		sed -e 's/^/## /g' <<< "$help_txt"
+	} | _gsu_roffify_cmds
+}
+
+_gsu_roff_man()
+{
+	local name="$1" sect_num="$2" month_year="$3" pkg="$4" sect_name="$5"
+	local purpose="$6"
+	local ere
+
+	cat << EOF
+.TH "${name^^}" "$sect_num" "$month_year" "$pkg" "$sect_name"
+.SH NAME
+$name \- $purpose
+.SH SYNOPSIS
+.B $name
+\fI\,<subcommand>\/\fR [\fI\,<options>\/\fR] [\fI\,<arguments>\/\fR]
+.SH DESCRIPTION
+EOF
+	_gsu_extract_maindoc | _gsu_roffify_maindoc
+
+	printf '\n.SH "GENERIC SUBCOMMANDS"\n'
+	printf 'The following commands are automatically created by gsu\n'
+	_gsu_roffify_autocmd "help" "$_gsu_help_txt"
+	_gsu_roffify_autocmd "man" "$_gsu_man_txt"
+	_gsu_roffify_autocmd "prefs" "$_gsu_prefs_txt"
+	_gsu_roffify_autocmd "complete" "$_gsu_complete_txt"
+
+	printf '\n.SH "LIST OF SUBCOMMANDS"\n'
+	printf 'Each command has its own set of options as described below.\n'
+
+	_gsu_get_command_regex
+	ere="$result"
+	# only consider lines in the comment of the function
+	sed -nEe '/'"$ere"'/,/^[^#]/p' "$0" | _gsu_roffify_cmds
+}
+
+_gsu_file_mtime()
+{
+	local file="$1"
+	result="$(find "$file" -printf '%TB %TY' 2>/dev/null)" # GNU
+	(($? == 0)) && [[ -n "$result" ]] && return
+	result="$(stat -f %Sm -t '%B %Y' "$file" 2>/dev/null)" # BSD
+	(($? == 0)) && [[ -n "$result" ]] && return
+	result="$(date '+%B %Y' 2>/dev/null)" # POSIX
+	(($? == 0)) && [[ -n "$result" ]] && return
+	result='[unknown date]'
+}
+
+com_man()
+{
+	local equal_signs="=================================================="
+	local minus_signs="--------------------------------------------------"
+	local filter='cat' pager='cat' browser=${BROWSER:-elinks} tmpfile=
+	local com num isatty pipeline
+
+	gsu_getopts "$_gsu_man_options"
+	eval "$result"
+	((ret < 0)) && return
+	if [[ -n "$o_b" ]]; then
+		o_m='html'
+		browser="$o_b"
+	elif [[ -z "$o_m" ]]; then
+		o_m='roff'
+	fi
+
+	_gsu_isatty && isatty='true' || isatty='false'
+	if [[ "$o_m" == 'roff' ]]; then
+		if [[ "$isatty" == 'true' ]]; then
+			filter='nroff -Tutf8 -mandoc'
+			pager="${PAGER:-less}"
+		fi
+	elif [[ "$o_m" == 'text' ]]; then
+		if [[ "$isatty" == 'true' ]]; then
+			pager="${PAGER:-less}"
+		fi
+	elif [[ "$o_m" == 'html' ]]; then
+		filter='groff -T html -m man'
+		if [[ "$isatty" == 'true' ]]; then
+			gsu_make_tempfile "gsu_html_man.XXXXXX.html"
+			((ret < 0)) && return || tmpfile="$result"
+			trap "rm -f $tmpfile" RETURN EXIT
+		fi
+	fi
+	[[ "$pager" == 'less' ]] && export LESS=${LESS-RI}
+	case "$o_m" in
+	roff|html)
+		_gsu_file_mtime	"$0"
+		_gsu_roff_man "$gsu_name" '1' "$result" \
+			"${gsu_package-${gsu_name^^}(1)}" \
+			"User Commands" "${gsu_banner_txt}" \
+		| $filter | {
+			if [[ -n "$tmpfile" ]]; then
+				cat > "$tmpfile"
+			else
+				$pager
+			fi
+		}
+		if (($? != 0)); then
+			ret=-$E_GSU_XCMD
+			result="filter: $filter"
+			return
+		fi
+		if [[ -n "$tmpfile" ]]; then
+			ret=-$E_GSU_XCMD
+			result="$browser"
+			"$browser" "$tmpfile" || return
+		fi
+		ret=$GSU_SUCCESS
+		return
+		;;
+	text) ;;
+	"") ;;
+	*)
+		ret=-$E_GSU_INVAL
+		result="$o_m"
+		return
+	esac
+	{
+	echo "$gsu_name (_${gsu_banner_txt}_) manual"
+	echo "${equal_signs:0:${#gsu_name} + ${#gsu_banner_txt} + 16}"
+	echo
+	_gsu_extract_maindoc
+	echo "----"
+	echo
+	echo "$gsu_name usage"
+	echo "${minus_signs:0:${#gsu_name} + 6}"
+	printf "\t"
+	_gsu_usage 2>&1
+	echo "Each command has its own set of options as described below."
+	echo
+	echo "----"
+	echo
+	echo "Available commands:"
+
+	_gsu_available_commands
+	for com in $result; do
+		num=${#com}
+		((num < 4)) && num=4
+		echo "${minus_signs:0:$num}"
+		echo "$com"
+		echo "${minus_signs:0:$num}"
+		"$0" help "$com"
+		echo
+	done
+	} | $pager
+	ret=$GSU_SUCCESS
+}
+
+_gsu_help_txt="
+Print online help.
+
+Usage: help [command]
+
+Without arguments, print the list of available commands. Otherwise,
+print the help text for the given command."
+
+_gsu_complete_txt="
+Command line completion.
+
+Usage: complete [<cword> <word>...]
+
+When executed without argument the command writes bash code to
+stdout. This code is suitable to be evaled from .bashrc to enable
+completion.
+
+If at least one argument is given, all possible completions are
+written to stdout. This can be used from the completion function of
+the subcommand.
+"
+
+com_help()
+{
+	local ere tab='	'
+
+	_gsu_get_command_regex
+	ere="$result"
+
+	if (($# == 0)); then
+		gsu_short_msg "### $gsu_name -- $gsu_banner_txt ###"
+		_gsu_usage 2>&1
+		{
+			printf "com_help()\n%s" "$_gsu_help_txt" | head -n 4; echo "--"
+			printf "com_man()\n%s" "$_gsu_man_txt" | head -n 4; echo "--"
+			printf "com_prefs()\n%s" "$_gsu_prefs_txt" | head -n 4; echo "--"
+			printf "com_complete()\n%s" "$_gsu_complete_txt" | head -n 4; echo "--"
+			grep -EA 2 "$ere" "$0"
+		} | grep -v -- '--' \
+			| sed -En "/$ere/"'!d
+				# remove everything but the command name
+				s/^com_(.*)\(\).*/\1/
+
+				# append tab after short commands (less than 8 chars)
+				s/^(.{1,7})$/\1'"$tab"'/g
+
+				# remove next line (should contain only ## anyway)
+				N
+				s/#.*//
+
+				# append next line, removing leading ##
+				N
+				s/#+ *//g
+
+				# replace newline by tab
+				y/\n/'"$tab"'/
+
+				# and print the sucker
+				p'
+		echo
+		echo "# Try $gsu_name help <command> for info on <command>."
+		ret=$GSU_SUCCESS
+		return
+	fi
+	if test "$1" = "help"; then
+		echo "$_gsu_help_txt"
+		ret=$GSU_SUCCESS
+		return
+	fi
+	if test "$1" = "man"; then
+		echo "$_gsu_man_txt"
+		ret=$GSU_SUCCESS
+		return
+	fi
+	if test "$1" = "prefs"; then
+		echo "$_gsu_prefs_txt"
+		ret=$GSU_SUCCESS
+		return
+	fi
+	if test "$1" = "complete"; then
+		echo "$_gsu_complete_txt"
+		ret=$GSU_SUCCESS
+		return
+	fi
+	ret=$GSU_SUCCESS
+	_gsu_get_command_regex "$1"
+	ere="$result"
+	if ! grep -Eq "$ere" "$0"; then
+		_gsu_print_available_commands
+		result="$1"
+		ret=-$E_GSU_BAD_COMMAND
+		return
+	fi
+	sed -nEe '
+		# only consider lines in the comment of the function
+		/'"$ere"'/,/^[^#]/ {
+
+			# remove leading ##
+			s/^## *//
+
+			# if it did start with ##, jump to label p and print it
+			tp
+
+			# otherwise, move on to next line
+			d
+
+			# print it
+			:p
+			p
+		}
+	' "$0"
+}
+
+complete_help()
+{
+	_gsu_available_commands
+	echo "$result"
+}
+
+com_complete()
+{
+	local cmd n cword
+	local -a words
+
+	if (($# == 0)); then
+		cat <<EOF
+		local cur="\${COMP_WORDS[\$COMP_CWORD]}";
+		local -a candidates;
+
+		candidates=(\$($0 complete "\$COMP_CWORD" "\${COMP_WORDS[@]}"));
+		if ((\$? == 0)); then
+			COMPREPLY=(\$(compgen -W "\${candidates[*]}" -- "\$cur"));
+		else
+			compopt -o filenames;
+			COMPREPLY=(\$(compgen -fd -- "\$cur"));
+		fi
+EOF
+		ret=$GSU_SUCCESS
+		return
+	fi
+
+	cword="$1"
+	gsu_is_a_number "$cword"
+	((ret < 0)) && return
+	if ((cword <= 1)); then
+		_gsu_available_commands
+		echo "${result}"
+		ret=$GSU_SUCCESS
+		return
+	fi
+	shift
+	words=("$@")
+	cmd="${words[1]}"
+	# if no completer is defined for this subcommand we exit unsuccessfully
+	# to let the generic completer above fall back to file name completion.
+	[[ "$(type -t "complete_$cmd")" != "function" ]] && exit 1
+	"complete_$cmd" "$cword" "${words[@]}"
+	# ignore errors, they would only clutter the completion output
+	ret=$GSU_SUCCESS
+}
+
+# Find out if the current word is a parameter for an option.
+#
+# $1:   usual getopts option string.
+# $2:   The current word number.
+# $3..: All words of the current command line.
+#
+# return: If yes, $result contains the letter of the option for which the
+# current word is a parameter. Otherwise, $result is empty.
+#
+gsu_cword_is_option_parameter()
+{
+	local opts="$1" cword="$2"
+	local opt prev i n
+	local -a words
+
+	result=
+	((cword == 0)) && return
+	((${#opts} < 2)) && return
+
+	shift 2
+	words=("$@")
+	prev="${words[$((cword - 1))]}"
+	[[ ! "$prev" == -* ]] && return
+
+	n=$((${#opts} - 1))
+	for ((i=0; i <= $n; i++)); do
+		opt="${opts:$i:1}"
+		[[ "${opts:$((i + 1)):1}" != ":" ]] && continue
+		let i++
+		[[ ! "$prev" =~ ^-.*$opt$ ]] && continue
+		result="$opt"
+		return
+	done
+	ret=0
+}
+
+# Get the word number on which the cursor is, not counting options.
+#
+# This is useful for completing commands whose possible completions depend
+# on the word number, for example mount.
+#
+# $1:   Getopt option string.
+# $2:   The current word number.
+# $3..: All words of the current command line.
+#
+# return: If the current word is an option, or a parameter to an option,
+# this function sets $result to -1. Otherwise, the number of the non-option
+# is returned in $result.
+#
+gsu_get_unnamed_arg_num()
+{
+	local opts="$1" cword="$2" prev cur
+	local -i i n=0
+	local -a words
+
+	shift 2
+	words=("$@")
+	cur="${words[$cword]}"
+	prev="${words[$((cword - 1))]}"
+	result=-1
+	[[ "$cur" == -* ]] && return
+	[[ "$prev" == -* ]] && [[ "$opts" == *${prev#-}:* ]] && return
+
+	for ((i=1; i <= $cword; i++)); do
+		prev="${words[$((i - 1))]}"
+		cur="${words[$i]}"
+		[[ "$cur" == -* ]] && continue
+		if [[ "$prev" == -* ]]; then
+			opt=${prev#-}
+			[[ "$opts" != *$opt:* ]] && let n++
+			continue
+		fi
+		let n++
+	done
+	result="$((n - 1))"
+}
+
+# Entry point for all gsu-based scripts.
+#
+# The startup part of the application script should source this file to load
+# the functions defined here, and then call gsu(). Functions starting with com_
+# are automatically recognized as subcommands.
+#
+# Minimal example:
+#
+#	com_hello()
+#	{
+#		echo 'hello world'
+#	}
+#	gsu_dir=${gsu_dir:-/system/location/where/gsu/is/installed}
+#	. $gsu_dir/subcommand || exit 1
+#	gsu "$@"
+gsu()
+{
+	local i
+
+	if (($# == 0)); then
+		_gsu_usage
+		_gsu_print_available_commands
+		exit 1
+	fi
+	arg="$1"
+	shift
+	if [[ "$(type -t "com_$arg")" == 'function' ]]; then
+		"com_$arg" "$@"
+		if ((ret < 0)); then
+			gsu_err_msg
+			exit 1
+		fi
+		exit 0
+	fi
+	ret=-$E_GSU_BAD_COMMAND
+	result="$arg"
+	gsu_err_msg
+	_gsu_print_available_commands
+	exit 1
+}

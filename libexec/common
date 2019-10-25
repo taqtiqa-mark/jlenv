@@ -1,0 +1,126 @@
+#!/bin/bash
+# Copyright (C) 2006 Andre Noll
+# Licensed under the LGPL, version 3. See COPYING and COPYING.LESSER.
+
+_gsu_init_errors()
+{
+	gsu_errors="
+GSU_SUCCESS			success
+E_GSU_BAD_COMMAND		invalid command
+E_GSU_NOT_A_NUMBER		not a number
+E_GSU_BAD_CONFIG_VAR		invalid config variable
+E_GSU_NEED_VALUE		value required but not given
+E_GSU_BAD_BOOL			bad value for boolian option
+E_GSU_BAD_OPTION_TYPE		invalid option type
+E_GSU_BAD_ARG_COUNT		invalid number of arguments
+E_GSU_EDITOR			failed to execute editor
+E_GSU_INVAL			invalid argument
+E_GSU_MKDIR			failed to create directory
+E_GSU_GETOPTS			getopts error
+E_GSU_DIALOG			dialog error
+E_GSU_MKTEMP			mktemp error
+E_GSU_MENU_TREE			invalid menu tree
+E_GSU_XCMD			external command failed
+${gsu_errors:-}
+"
+	local a b i=0
+	while read a b; do
+		if test -z "$a"; then
+			continue
+		fi
+		#echo "a:$a,  b: $b"
+		gsu_error_txt[i]="$b"
+		eval $a=$i
+		i=$((i + 1))
+	done << EOF
+	$gsu_errors
+EOF
+}
+
+# check if $1 is a number
+gsu_is_a_number()
+{
+	result="$1"
+	if [ "$1" -eq "$1" ] &> /dev/null; then
+		ret=$GSU_SUCCESS
+	else
+		ret=-$E_GSU_NOT_A_NUMBER
+	fi
+}
+
+gsu_short_msg()
+{
+	echo "$1" 1>&2
+}
+
+gsu_msg()
+{
+	gsu_short_msg "$gsu_name: $1"
+}
+
+gsu_date_msg()
+{
+	gsu_short_msg "$gsu_name $(date): $1"
+}
+
+gsu_err_msg()
+{
+	local txt="$result" err
+
+	gsu_is_a_number "$ret"
+	if ((ret < 0)); then
+		gsu_msg "unknown error ($ret:$txt)"
+		exit 1
+	fi
+	if ((result >= 0)); then
+		gsu_msg "unknown error ($result:$txt)"
+		exit 1
+	fi
+	err=$((0 - result))
+	if test -n "$txt"; then
+		txt="$txt: ${gsu_error_txt[$err]}"
+	else
+		txt="${gsu_error_txt[$err]}"
+	fi
+	gsu_msg "$txt"
+}
+
+_gsu_setup()
+{
+	gsu_name="${gsu_name:-${0##*/}}"
+	gsu_config_var_prefix="${gsu_config_var_prefix:=$gsu_name}"
+	gsu_banner_txt="${gsu_banner_txt:-set \$gsu_banner_txt to customize this message}"
+	_gsu_init_errors
+}
+
+# We'd love to use mktemp -t here, but on Linux -t is deprecated in favor of
+# --tempdir, which is not supported on *BSD. Hence we have to implement our own
+# logic for -t.
+#
+# The second parameter to this function is optional. It is ignored if the
+# template ($1) is an absolute path. Conversely, if the template is a relative
+# path and a second parameter is given, $2 is assumed to be the directory in
+# which the temporary file should be created.
+gsu_make_tempfile()
+{
+	local template="$1"
+	local dir
+
+	if [[ "${template:0:1}" != '/' ]]; then # relative path
+		if (($# > 1)); then
+			dir="$2"
+		elif [[ -n "${TMPDIR:-}" ]]; then
+			dir="$TMPDIR"
+		else
+			dir="/tmp"
+		fi
+		template="$dir/$template"
+	fi
+	result="$(mktemp "$template")"
+	if (($? != 0)); then
+		ret=-$E_GSU_MKTEMP
+		result="template: $template"
+		return
+	fi
+	ret=$GSU_SUCCESS
+}
