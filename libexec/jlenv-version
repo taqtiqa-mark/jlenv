@@ -20,7 +20,7 @@ com_version()
 ## terminal to disappear and may cause DATA LOSS in your scrollback
 ## buffer. Use with caution.
 {
-  # no arguments allowed
+  # No arguments allowed
   gsu_check_arg_count $# 0 0 
   # gsu_err_msg "${result}"
   ((ret < 0)) && return
@@ -32,10 +32,10 @@ com_version()
   ((ret < 0)) && return
 
   # The verbose option variable
-  if [ "$o_v" = 'true' ]; then 
-    printf '%s (set by %s)\n' "$("${gsu_dir}/jlenv-version-name")" "$("${gsu_dir}/jlenv-version-origin")"
+  if [ "$o_v" = 'true' ]; then
+    printf '%s (set by %s)\n' "$(com_version-name)" "$(com_version-origin)"
   else
-    printf '%s (set by %s)\n' "$("${gsu_dir}/jlenv-version-name")" "$("${gsu_dir}/jlenv-version-origin")"
+    printf '%s (set by %s)\n' "$(com_version-name)" "$(com_version-origin)"
   fi
   ret=$GSU_SUCCESS
 }

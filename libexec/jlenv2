@@ -27,6 +27,7 @@ gsu_errors='
 gsu_banner_txt='Robust Julia version management.'
 
 source "${gsu_dir}/jlenv-version"
+source "${gsu_dir}/jlenv-version-name"
 
 #####################################################################
 #

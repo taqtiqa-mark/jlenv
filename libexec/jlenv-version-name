@@ -1,52 +1,43 @@
 #!/usr/bin/env bash
-#
-# Summary: Show the current Julia version
-#
-# Usage: jlenv [<opts>] version-name
-#
-# This is convenience script that shows only the version of the current Julia.
-# This script is also extensively employed in jlenv internally.
-
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
-
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
-if [ -z "$JLENV_VERSION" ]; then
-  JLENV_VERSION_FILE="$(jlenv-version-file)"
-  JLENV_VERSION="$(jlenv-version-file-read "$JLENV_VERSION_FILE" || true)"
-fi
-
-OLDIFS="$IFS"
-IFS=$'\n' scripts=(`jlenv-hooks version-name`)
-IFS="$OLDIFS"
-for script in "${scripts[@]}"; do
-  source "$script"
-done
-
-if [ -z "${JLENV_VERSION}" ] || [ "${JLENV_VERSION}" = "system" ]; then
-  echo "system"
-  exit
-fi
 
 version_exists() {
   local version="$1"
   [ -d "${JLENV_ROOT}/versions/${version}" ]
 }
 
-if version_exists "$JLENV_VERSION"; then
-  echo "$JLENV_VERSION"
-elif version_exists "${JLENV_VERSION#julia-}"; then
-  echo "${JLENV_VERSION#julia-}"
-else
-  echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(jlenv-version-origin))" >&2
-  exit 1
-fi
+
+com_version-name()
+##
+## Summary: Show the current Julia version
+##
+## Usage: jlenv [<opts>] version-name
+##
+## This is convenience script that shows only the version of the current Julia.
+## This script is also extensively employed in jlenv internally.
+{
+  if [ -z "$JLENV_VERSION" ]; then
+    JLENV_VERSION_FILE="$(jlenv-version-file)"
+    JLENV_VERSION="$(jlenv-version-file-read "$JLENV_VERSION_FILE" || true)"
+  fi
+
+  OLDIFS="$IFS"
+  IFS=$'\n' scripts=($(jlenv-hooks version-name))
+  IFS="$OLDIFS"
+  for script in "${scripts[@]}"; do
+    source "$script"
+  done
+
+  if [ -z "${JLENV_VERSION}" ] || [ "${JLENV_VERSION}" = "system" ]; then
+    echo "system"
+    exit
+  fi
+
+  if version_exists "$JLENV_VERSION"; then
+    echo "$JLENV_VERSION"
+  elif version_exists "${JLENV_VERSION#julia-}"; then
+    echo "${JLENV_VERSION#julia-}"
+  else
+    echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(jlenv-version-origin))" >&2
+    exit 1
+  fi
+}
