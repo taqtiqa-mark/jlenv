@@ -127,7 +127,7 @@ print_help() {
     if [ -n "$usage" ]; then
       echo "${usage}"
     else
-      echo "Usage: jlenv [<opts>] ${command}"
+      echo -n "Usage: jlenv [<opts>] ${command}"
     fi
     if [ -n "$help" ]; then
       echo

@@ -7,6 +7,22 @@
 Use jlenv to pick a Julia version for your application and guarantee
 that your development environment matches production.
 
+## jlenv Does...
+
+* Change the global Julia version on a per-user basis.
+* Support per-project Julia versions.
+* Override the Julia version with an environment variable.
+
+## jlenv Does NOT....
+
+* Load into your shell.
+* Override shell commands (`cd`, etc.).
+* Have more than a one-word configuration file.
+* Install Julia.
+* Manage packages.
+* Require changes to Julia for compatibility.
+* Prompt you with warnings when you switch projects.
+
 Further [documentation is here](https://jlenv.github.io/jlenv/).
 Changelog is [here](https://jlenv.github.io/jlenv/changelog.md)
 

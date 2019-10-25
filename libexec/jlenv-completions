@@ -13,6 +13,8 @@
 #   2. ./completions/jlenv.fish
 #   3. ./completions/jlenv.zsh
  
+# See:
+# https://tylerthrailkill.com/2019-01-19/writing-bash-completion-script-with-subcommands/
 
 # Import functions shared between jlenv scripts and plugins.
 # Function specific to each jlenv-<command> script are:
