@@ -1,24 +1,41 @@
 #!/usr/bin/env bash
-#
-# Summary: Show the current Julia version and its origin
-#
-# Usage: jlenv [<opts>] version
-#
-# Shows the currently selected Julia version and how it was
-# selected. 
-# To obtain only the version string, use $(jlenv version-name).
 
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
+com_version()
+##
+##
+## Show the current Julia version and how it was selected.
+##
+## Usage: jlenv version []
+##
+## To obtain only the version string, use $(jlenv version-name).
+## Any arguments to this function are ignored.
+##
+## Options:
+##
+##      -v: Enable verbose mode
+##      -c: Enable cron mode
+##      -n: Enable no-color mode
+##
+## Warning: This subcommand may cause the top most line of your
+## terminal to disappear and may cause DATA LOSS in your scrollback
+## buffer. Use with caution.
+{
+  # no arguments allowed
+  gsu_check_arg_count $# 0 0 
+  # gsu_err_msg "${result}"
+  ((ret < 0)) && return
+  
+  # Options
+  # [c]ron, [n]o-color, [v]erbose
+  gsu_getopts 'cnv'
+  eval "$result"
+  ((ret < 0)) && return
 
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
-echo "$(jlenv-version-name) (set by $(jlenv-version-origin))"
+  # The verbose option variable
+  if [ "$o_v" = 'true' ]; then 
+    printf '%s (set by %s)\n' "$("${gsu_dir}/jlenv-version-name")" "$("${gsu_dir}/jlenv-version-origin")"
+  else
+    printf '%s (set by %s)\n' "$("${gsu_dir}/jlenv-version-name")" "$("${gsu_dir}/jlenv-version-origin")"
+  fi
+  ret=$GSU_SUCCESS
+}

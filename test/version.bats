@@ -15,8 +15,9 @@ setup() {
 
 @test "no version selected" {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
-  run jlenv-version
-  assert_success "system (set by ${JLENV_ROOT}/version)"
+  run jlenv2 version
+  assert_success 
+  assert_output "system (set by ${JLENV_ROOT}/version)"
 }
 
 @test "set by JLENV_VERSION" {
@@ -28,13 +29,13 @@ setup() {
 @test "set by local file" {
   create_version "1.0.3"
   cat > ".julia-version" <<<"1.0.3"
-  run jlenv-version
+  run jlenv2 version
   assert_success "1.0.3 (set by ${PWD}/.julia-version)"
 }
 
 @test "set by global file" {
   create_version "1.0.3"
   cat > "${JLENV_ROOT}/version" <<<"1.0.3"
-  run jlenv-version
+  run jlenv2 version
   assert_success "1.0.3 (set by ${JLENV_ROOT}/version)"
 }

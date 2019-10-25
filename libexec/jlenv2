@@ -8,6 +8,10 @@
 # to perform what a simple echo 'hello world' would do equally well.
 #######################################################################
 
+source jlenv-shared
+
+gsu_dir="$(resolve_path "${gsu_dir:-${BASH_SOURCE[0]%/*}}")"
+
 gsu_errors='
     E_NO             No Julia install found.
     E_NO_VRSN        No Julia install found of that version.
@@ -22,50 +26,14 @@ gsu_errors='
 # man page banner text
 gsu_banner_txt='Robust Julia version management.'
 
-com_version()
-##
-##
-## Show the current Julia version and how it was selected.
-##
-## Usage: jlenv version []
-##
-## To obtain only the version string, use $(jlenv version-name).
-## Any arguments to this function are ignored.
-##
-## Options:
-##
-##      -v: Enable verbose mode
-##      -c: Enable cron mode
-##      -n: Enable no-color mode
-##
-## Warning: This subcommand may cause the top most line of your
-## terminal to disappear and may cause DATA LOSS in your scrollback
-## buffer. Use with caution.
-{
-  # no arguments allowed
-  gsu_check_arg_count $# 0 0 
-  gsu_err_msg "${result}"
-  ((ret < 0)) && return
-  
-  # Options
-  # [c]ron, [n]o-color, [v]erbose
-  gsu_getopts 'cnv'
-  eval "$result"
-  ((ret < 0)) && return
-
-  printf 'hello world'
-  [[ "$1" == '-v' ]] && printf '!'
-  printf '\n'
-  ret=$GSU_SUCCESS
-}
+source "${gsu_dir}/jlenv-version"
 
 #####################################################################
 #
 #  Start-up
 #
 #####################################################################
-gsu_dir=${gsu_dir:-${BASH_SOURCE[0]%/*}}
-source "$gsu_dir/subcommand" || exit 1
+source "${gsu_dir}/subcommand" || exit 1
 
 gsu "$@"
 
