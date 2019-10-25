@@ -13,19 +13,19 @@ load test_helper
 @test "shims" {
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/julia"
-  touch "${JLENV_ROOT}/shims/irb"
+  touch "${JLENV_ROOT}/shims/genie"
   run jlenv-shims
   assert_success
   assert_line "${JLENV_ROOT}/shims/julia"
-  assert_line "${JLENV_ROOT}/shims/irb"
+  assert_line "${JLENV_ROOT}/shims/genie"
 }
 
 @test "shims --short" {
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/julia"
-  touch "${JLENV_ROOT}/shims/irb"
+  touch "${JLENV_ROOT}/shims/genie"
   run jlenv-shims --short
   assert_success
-  assert_line "irb"
+  assert_line "genie"
   assert_line "julia"
 }

@@ -24,7 +24,7 @@ stub_system_julia() {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
   run jlenv-versions
   assert_success 
-  assert_line --index 0 --regexp '(\* system \(set by )(.*)(jlenv\.[a-zA-Z0-9]{3})/root/version\)'
+  assert_line --index 0 "* system (set by ${JLENV_TEST_DIR}/root/version)"
 }
 
 @test "not even system julia available" {
@@ -44,7 +44,7 @@ stub_system_julia() {
   create_version "1.9"
   run jlenv-versions
   assert_success
-  assert_line --index 0 --regexp '(\* system \(set by )(.*)(jlenv\.[a-zA-Z0-9]{3})/root/version\)'
+  assert_line --index 0 "* system (set by ${JLENV_TEST_DIR}/root/version)"
   assert_output --partial '1.9'
 }
 

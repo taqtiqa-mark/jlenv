@@ -8,7 +8,7 @@ load test_helper
   run jlenv --help
   assert_success
   assert_line --index 0 "$(jlenv---version)"
-  assert_output --partial --stdin <<'OUT'
+  expect=$(cat <<'OUT'
 Options to jlenv:
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
@@ -22,25 +22,25 @@ Some useful jlenv commands are:
    local       Set or show the local application-specific Julia version
    global      Set or show the global Julia version
    shell       Set or show the shell-specific Julia version
-   install     Fake install program
-   uninstall   Fake uninstall program
    rehash      Rehash jlenv shims (run this after installing executables)
    version     Show the current Julia version and its origin
    versions    List all Julia versions available to jlenv
    which       Display the full path to an executable
-   whence      List all Julia versions that contain the given executable
+   whence      List Julia version numbers that contain the given executable
 
 See $(jlenv help <command>) for information on a specific command.
 For full documentation, see: https://github.com/jlenv/jlenv#readme
-
 OUT
+)
+  result="$(git -c color.diff=always diff --no-patch --ws-error-highlight=new,old $(echo "$output"|tail -n +2| git hash-object -w --stdin) $(echo "$expect"| git hash-object -w --stdin))"
+  [ "${result}" = "" ]
 }
 
 @test "blank invocation" {
   run jlenv
   assert_failure
-assert_line --index 0 "$(jlenv---version)"
-  assert_output --partial --stdin <<'OUT'
+  assert_line --index 0 "$(jlenv---version)"
+  expect=$(cat <<'OUT'
 Options to jlenv:
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
@@ -54,18 +54,18 @@ Some useful jlenv commands are:
    local       Set or show the local application-specific Julia version
    global      Set or show the global Julia version
    shell       Set or show the shell-specific Julia version
-   install     Fake install program
-   uninstall   Fake uninstall program
    rehash      Rehash jlenv shims (run this after installing executables)
    version     Show the current Julia version and its origin
    versions    List all Julia versions available to jlenv
    which       Display the full path to an executable
-   whence      List all Julia versions that contain the given executable
+   whence      List Julia version numbers that contain the given executable
 
 See $(jlenv help <command>) for information on a specific command.
 For full documentation, see: https://github.com/jlenv/jlenv#readme
-
 OUT
+)
+result="$(git -c color.diff=always diff --no-patch --ws-error-highlight=new,old $(echo "$output"|tail -n +2| git hash-object -w --stdin) $(echo "$expect"| git hash-object -w --stdin))"
+[ "${result}" = "" ]
 }
 
 @test "invalid command" {

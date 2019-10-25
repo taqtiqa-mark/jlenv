@@ -12,19 +12,22 @@ setup() {
 @test "reports global file even if it doesn't exist" {
   assert [ ! -e "${JLENV_ROOT}/version" ]
   run jlenv-version-origin
-  assert_success "${JLENV_ROOT}/version"
+  assert_success 
+  assert_output "${JLENV_ROOT}/version"
 }
 
 @test "detects global file" {
   mkdir -p "$JLENV_ROOT"
   touch "${JLENV_ROOT}/version"
   run jlenv-version-origin
-  assert_success "${JLENV_ROOT}/version"
+  assert_success 
+  assert_output "${JLENV_ROOT}/version"
 }
 
 @test "detects JLENV_VERSION" {
   JLENV_VERSION=1 run jlenv-version-origin
-  assert_success "JLENV_VERSION environment variable"
+  assert_success 
+  assert_output "JLENV_VERSION environment variable"
 }
 
 @test "detects local file" {
