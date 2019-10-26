@@ -9,12 +9,12 @@ load test_helper
   cd "${JLENV_TEST_DIR}/myproject"
   echo "1.2.3" > .julia-version
   mkdir -p "${JLENV_ROOT}/versions/1.2.3"
-  run jlenv-prefix
+  run jlenv2 prefix
   assert_success "${JLENV_ROOT}/versions/1.2.3"
 }
 
 @test "prefix for invalid version" {
-  JLENV_VERSION="1.2.3" run jlenv-prefix
+  JLENV_VERSION="1.2.3" run jlenv2 prefix
   assert_failure "jlenv: version 'v1.2.3' not installed"
 }
 
@@ -22,7 +22,7 @@ load test_helper
   mkdir -p "${JLENV_TEST_DIR}/bin"
   touch "${JLENV_TEST_DIR}/bin/julia"
   chmod +x "${JLENV_TEST_DIR}/bin/julia"
-  JLENV_VERSION="system" run jlenv-prefix
+  JLENV_VERSION="system" run jlenv2 prefix
   assert_success "$JLENV_TEST_DIR"
 }
 
@@ -38,7 +38,7 @@ load test_helper
 # echo /bin/julia
 # OUT
 #   chmod +x "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
-#   PATH=${PATH} JLENV_VERSION="system" run jlenv-prefix
+#   PATH=${PATH} JLENV_VERSION="system" run jlenv2 prefix
 #   assert_success 
 #   assert_output "/"
 #   rm -f "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
@@ -49,7 +49,7 @@ load test_helper
   echo /bad/user/hijacked/bin/julia
   }
   export -f jlenv-which
-  JLENV_VERSION="system" run jlenv-prefix
+  JLENV_VERSION="system" run jlenv2 prefix
   refute_output "/bad/user/hijacked"
 }
 
@@ -61,13 +61,13 @@ load test_helper
 echo /bad/user/hijacked/bin/julia
 OUT
   chmod +x "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
-  PATH=${PATH} JLENV_VERSION="system" run jlenv-prefix
+  PATH=${PATH} JLENV_VERSION="system" run jlenv2 prefix
   refute_output "/bad/user/hijacked"
   rm -f "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
 }
 
 @test "prefix for invalid system" {
-  PATH="$(path_without julia)" run jlenv-prefix system
+  PATH="$(path_without julia)" run jlenv2 prefix system
   assert_failure 
   assert_output "jlenv: system version not found in PATH"
 }

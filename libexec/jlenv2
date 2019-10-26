@@ -8,6 +8,10 @@
 # to perform what a simple echo 'hello world' would do equally well.
 #######################################################################
 
+# TODO force use of functions.
+#https://unix.stackexchange.com/questions/188327/how-do-i-explicitly-and-safely-force-the-use-of-a-built-in-command-in-bash
+#https://unix.stackexchange.com/questions/543792/how-to-protect-bash-function-from-being-overridden
+
 src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${src_dir}/jlenv-shared
 
@@ -33,6 +37,7 @@ gsu_banner_txt='Robust Julia version management.'
 gsu_package="jlenv (TODO jlenv---version here)"
 
 source "${gsu_dir}/jlenv-hooks" 
+source "${gsu_dir}/jlenv-prefix"
 source "${gsu_dir}/jlenv-version"
 source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-file-read"
@@ -45,6 +50,11 @@ source "${gsu_dir}/jlenv-which"
 com_hooks()
 {
     jlenv_hooks "$@"
+    ret=$GSU_SUCCESS
+}
+com_prefix()
+{
+    jlenv_prefix "$@"
     ret=$GSU_SUCCESS
 }
 com_version()

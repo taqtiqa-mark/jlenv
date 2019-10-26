@@ -1,26 +1,13 @@
 #!/usr/bin/env bash
-# 
-# Summary: Display prefix for a Julia version
-# 
-# Usage: jlenv [<opts>] prefix [<version>]
-#
-# Displays the directory where a Julia version is installed. If no
-# version is given, $(jlenv prefix) displays the location of the
-# currently selected version.
-
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
-
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
+jlenv_prefix()
+## Summary: Display prefix for a Julia version
+## 
+## Usage: jlenv [<opts>] prefix [<version>]
+##
+## Displays the directory where a Julia version is installed. If no
+## version is given, $(jlenv prefix) displays the location of the
+## currently selected version.
+{
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
   echo system
@@ -34,7 +21,7 @@ elif [ -z "$JLENV_VERSION" ]; then
 fi
 
 if [ "$JLENV_VERSION" = "system" ]; then
-  if JULIA_PATH="$(command jlenv-which julia 2>/dev/null)"; then
+  if JULIA_PATH="$(com_which julia 2>/dev/null)"; then
     JULIA_PATH="${JULIA_PATH%/*}"
     JLENV_PREFIX_PATH="${JULIA_PATH%/bin}"
     echo "${JLENV_PREFIX_PATH:-/}"
@@ -52,3 +39,4 @@ if [ ! -d "$JLENV_PREFIX_PATH" ]; then
 fi
 
 echo "$JLENV_PREFIX_PATH"
+}
