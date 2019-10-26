@@ -40,6 +40,7 @@ gsu_banner_txt='Robust Julia version management.'
 # Usually the name and version number of the software package
 gsu_package="jlenv (TODO jlenv---version here)"
 
+source "${gsu_dir}/jlenv-global" 
 source "${gsu_dir}/jlenv-hooks" 
 source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
@@ -53,6 +54,11 @@ source "${gsu_dir}/jlenv-versions"
 source "${gsu_dir}/jlenv-whence"
 source "${gsu_dir}/jlenv-which"
 
+com_global()
+{
+    jlenv_global "$@"
+    ret=$GSU_SUCCESS
+}
 com_hooks()
 {
     jlenv_hooks "$@"
