@@ -14,7 +14,8 @@ create_executable() {
 @test "empty rehash" {
   assert [ ! -d "${JLENV_ROOT}/shims" ]
   run jlenv-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
   assert [ -d "${JLENV_ROOT}/shims" ]
   rmdir "${JLENV_ROOT}/shims"
 }
@@ -23,14 +24,16 @@ create_executable() {
   mkdir -p "${JLENV_ROOT}/shims"
   chmod -w "${JLENV_ROOT}/shims"
   run jlenv-rehash
-  assert_failure "jlenv: cannot rehash: ${JLENV_ROOT}/shims isn't writable"
+  assert_failure 
+  assert_output "jlenv: cannot rehash: ${JLENV_ROOT}/shims isn't writable"
 }
 
 @test "rehash in progress" {
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/.jlenv-shim"
   run jlenv-rehash
-  assert_failure "jlenv: cannot rehash: ${JLENV_ROOT}/shims/.jlenv-shim exists"
+  assert_failure 
+  assert_output "jlenv: cannot rehash: ${JLENV_ROOT}/shims/.jlenv-shim exists"
 }
 
 @test "creates shims" {
@@ -40,7 +43,8 @@ create_executable() {
   assert [ ! -e "${JLENV_ROOT}/shims/julia" ]
 
   run jlenv-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
 
   run ls "${JLENV_ROOT}/shims"
   assert_success
@@ -58,7 +62,8 @@ OUT
   create_executable "2.0" "julia"
 
   run jlenv-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
 
   assert [ ! -e "${JLENV_ROOT}/shims/oldshim1" ]
 }
@@ -75,7 +80,8 @@ OUT
   chmod +x "$JLENV_ROOT"/shims/{juliac,genie,uni}
 
   run jlenv-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
 
   assert [ ! -e "${JLENV_ROOT}/shims/genie" ]
   assert [ ! -e "${JLENV_ROOT}/shims/juliac" ]
@@ -113,13 +119,15 @@ SH
 @test "sh-rehash in bash" {
   create_executable "2.0" "julia"
   JLENV_SHELL=bash run jlenv-sh-rehash
-  assert_success "hash -r 2>/dev/null || true"
+  assert_success 
+  assert_output "hash -r 2>/dev/null || true"
   assert [ -x "${JLENV_ROOT}/shims/julia" ]
 }
 
 @test "sh-rehash in fish" {
   create_executable "2.0" "julia"
   JLENV_SHELL=fish run jlenv-sh-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
   assert [ -x "${JLENV_ROOT}/shims/julia" ]
 }

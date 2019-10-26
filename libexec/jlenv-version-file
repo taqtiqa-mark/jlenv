@@ -62,7 +62,7 @@ jlenv_version_file()
   if [ $ret -lt 0 ]
   then
     echo "${JLENV_ROOT}/version"
-    ret=0
+    ret=$GSU_SUCCESS
     result="${JLENV_ROOT}/version"
   fi
   ret=$ret

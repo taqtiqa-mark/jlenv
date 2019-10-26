@@ -19,10 +19,12 @@ create_executable() {
   create_executable "2.0" "juliac"
 
   JLENV_VERSION=0.7 run jlenv2 which julia
-  assert_success "${JLENV_ROOT}/versions/0.7/bin/julia"
+  assert_success 
+  assert_output "${JLENV_ROOT}/versions/0.7/bin/julia"
 
   JLENV_VERSION=2.0 run jlenv2 which juliac
-  assert_success "${JLENV_ROOT}/versions/2.0/bin/juliac"
+  assert_success 
+  assert_output "${JLENV_ROOT}/versions/2.0/bin/juliac"
 }
 
 @test "searches PATH for system version" {
@@ -30,7 +32,8 @@ create_executable() {
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
   JLENV_VERSION=system run jlenv2 which kill-all-humans
-  assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success 
+  assert_output "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims prepended)" {
@@ -38,7 +41,8 @@ create_executable() {
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
   PATH="${JLENV_ROOT}/shims:$PATH" JLENV_VERSION=system run jlenv2 which kill-all-humans
-  assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success 
+  assert_output "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims appended)" {
@@ -46,7 +50,8 @@ create_executable() {
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
   PATH="$PATH:${JLENV_ROOT}/shims" JLENV_VERSION=system run jlenv2 which kill-all-humans
-  assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success 
+  assert_output "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
 @test "searches PATH for system version (shims spread)" {
@@ -55,7 +60,8 @@ create_executable() {
 
   PATH="${JLENV_ROOT}/shims:${JLENV_ROOT}/shims:/tmp/non-existent:$PATH:${JLENV_ROOT}/shims" \
     JLENV_VERSION=system run jlenv2 which kill-all-humans
-  assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
+  assert_success 
+  assert_output "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
 @test "doesn't include current directory in PATH search" {
@@ -65,7 +71,8 @@ create_executable() {
   touch kill-all-humans
   chmod +x kill-all-humans
   JLENV_VERSION=system run jlenv2 which kill-all-humans
-  assert_failure "jlenv: kill-all-humans: command not found"
+  assert_failure 
+  assert_output "jlenv: kill-all-humans: command not found"
 }
 
 @test "version not installed" {

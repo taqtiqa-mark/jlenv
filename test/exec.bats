@@ -19,7 +19,8 @@ create_executable() {
 @test "fails when version set by environment variable is not installed" {
   export JLENV_VERSION="2.0"
   run jlenv-exec julia -v
-  assert_failure "jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)"
+  assert_failure 
+  assert_output "jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)"
 }
 
 @test "fails when uninstalled version set from .julia-version file" {
@@ -27,7 +28,8 @@ create_executable() {
   cd "$JLENV_TEST_DIR"
   echo 1.9 > .julia-version
   run jlenv-exec juliac
-  assert_failure "jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)"
+  assert_failure 
+  assert_output "jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)"
 }
 
 @test "completes with names of executables" {

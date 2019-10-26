@@ -47,19 +47,22 @@ OUT
 @test "reads simple version file" {
   cat > my-version <<<"1.0.3"
   run jlenv2 version-file-read my-version
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "ignores leading spaces" {
   cat > my-version <<<"  1.0.3"
   run jlenv2 version-file-read my-version
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "reads only the first word from file" {
   cat > my-version <<<"1.0.3-p194@tag 0.7.0 hi"
   run jlenv2 version-file-read my-version
-  assert_success "1.0.3-p194@tag"
+  assert_success 
+  assert_output "1.0.3-p194@tag"
 }
 
 @test "loads only the first line in file" {
@@ -68,7 +71,8 @@ OUT
 1.0.3 two
 IN
   run jlenv2 version-file-read my-version
-  assert_success "0.7.0"
+  assert_success 
+  assert_output "0.7.0"
 }
 
 @test "ignores leading blank lines" {
@@ -77,17 +81,20 @@ IN
 1.0.3
 IN
   run jlenv2 version-file-read my-version
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "handles the file with no trailing newline" {
   echo -n "0.7.0" > my-version
   run jlenv2 version-file-read my-version
-  assert_success "0.7.0"
+  assert_success 
+  assert_output "0.7.0"
 }
 
 @test "ignores carriage returns" {
   cat > my-version <<< $'1.0.3\r'
   run jlenv2 version-file-read my-version
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }

@@ -10,12 +10,14 @@ load test_helper
   echo "1.2.3" > .julia-version
   mkdir -p "${JLENV_ROOT}/versions/1.2.3"
   run jlenv2 prefix
-  assert_success "${JLENV_ROOT}/versions/1.2.3"
+  assert_success 
+  assert_output "${JLENV_ROOT}/versions/1.2.3"
 }
 
 @test "prefix for invalid version" {
   JLENV_VERSION="1.2.3" run jlenv2 prefix
-  assert_failure "jlenv: version 'v1.2.3' not installed"
+  assert_failure 
+  assert_output "jlenv: version 'v1.2.3' not installed"
 }
 
 @test "prefix for system" {
@@ -23,7 +25,8 @@ load test_helper
   touch "${JLENV_TEST_DIR}/bin/julia"
   chmod +x "${JLENV_TEST_DIR}/bin/julia"
   JLENV_VERSION="system" run jlenv2 prefix
-  assert_success "$JLENV_TEST_DIR"
+  assert_success 
+  assert_output "$JLENV_TEST_DIR"
 }
 
 # NOTE: In making jlenv more robust it is now not possible 

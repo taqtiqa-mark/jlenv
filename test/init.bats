@@ -42,7 +42,8 @@ echo \$JLENV_SHELL
 OUT
   chmod +x myscript.sh
   run ./myscript.sh /bin/zsh
-  assert_success "sh"
+  assert_success 
+  assert_output "sh"
 }
 
 @test "setup shell completions (fish)" {

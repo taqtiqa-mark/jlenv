@@ -33,7 +33,8 @@ OUT
 OUT
 
   run jlenv2 whence genie
-  assert_success "1.0"
+  assert_success 
+  assert_output "1.0"
 }
 
 @test "finds versions where present, and shows paths" {
@@ -58,5 +59,6 @@ ${JLENV_TEST_DIR}/root/versions/2.0/bin/juliac
 OUT
 
   run jlenv2 whence --path genie
-  assert_success "/tmp/jlenv.9cy/root/versions/1.0/bin/genie"
+  assert_success 
+  assert_output "/tmp/jlenv.9cy/root/versions/1.0/bin/genie"
 }

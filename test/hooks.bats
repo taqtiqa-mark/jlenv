@@ -6,7 +6,8 @@ load test_helper
 
 @test "prints usage help given no argument" {
   run jlenv2 hooks
-  assert_failure "Usage: jlenv hooks <command>"
+  assert_failure 
+  assert_output "Usage: jlenv hooks <command>"
 }
 
 @test "prints list of hooks" {
@@ -47,7 +48,8 @@ load test_helper
   mkdir -p "$HOME"
 
   JLENV_HOOK_PATH="${HOME}/../jlenv.d" run jlenv2 hooks exec
-  assert_success "${JLENV_TEST_DIR}/jlenv.d/exec/hello.bash"
+  assert_success 
+  assert_output "${JLENV_TEST_DIR}/jlenv.d/exec/hello.bash"
 }
 
 @test "resolves symlinks" {

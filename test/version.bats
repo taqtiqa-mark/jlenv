@@ -23,19 +23,22 @@ setup() {
 @test "set by JLENV_VERSION" {
   create_version "1.0.3"
   JLENV_VERSION=1.0.3 run jlenv-version
-  assert_success "1.0.3 (set by JLENV_VERSION environment variable)"
+  assert_success 
+  assert_output "1.0.3 (set by JLENV_VERSION environment variable)"
 }
 
 @test "set by local file" {
   create_version "1.0.3"
   cat > ".julia-version" <<<"1.0.3"
   run jlenv2 version
-  assert_success "1.0.3 (set by ${PWD}/.julia-version)"
+  assert_success 
+  assert_output "1.0.3 (set by ${PWD}/.julia-version)"
 }
 
 @test "set by global file" {
   create_version "1.0.3"
   cat > "${JLENV_ROOT}/version" <<<"1.0.3"
   run jlenv2 version
-  assert_success "1.0.3 (set by ${JLENV_ROOT}/version)"
+  assert_success 
+  assert_output "1.0.3 (set by ${JLENV_ROOT}/version)"
 }

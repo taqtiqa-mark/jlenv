@@ -36,7 +36,8 @@ stub_system_julia() {
 @test "bare output no versions installed" {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
   run jlenv2 versions --bare
-  assert_success ""
+  assert_success 
+  assert_output ""
 }
 
 @test "single version installed" {
@@ -51,7 +52,8 @@ stub_system_julia() {
 @test "single version bare" {
   create_version "1.9"
   run jlenv2 versions --bare
-  assert_success "1.9"
+  assert_success 
+  assert_output "1.9"
 }
 
 @test "multiple versions" {

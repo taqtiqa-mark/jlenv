@@ -15,7 +15,8 @@ create_command() {
   create_command "jlenv-hello" "#!$BASH
     echo hello"
   run jlenv-completions hello
-  assert_success "--help"
+  assert_success 
+  assert_output "--help"
 }
 
 @test "command with completion support" {

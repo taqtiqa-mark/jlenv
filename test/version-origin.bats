@@ -33,14 +33,16 @@ setup() {
 @test "detects local file" {
   touch .julia-version
   run jlenv2 version-origin
-  assert_success "${PWD}/.julia-version"
+  assert_success 
+  assert_output "${PWD}/.julia-version"
 }
 
 @test "reports from hook" {
   create_hook version-origin test.bash <<<"JLENV_VERSION_ORIGIN=plugin"
 
   JLENV_VERSION=1 run jlenv2 version-origin
-  assert_success "plugin"
+  assert_success 
+  assert_output "plugin"
 }
 
 @test "carries original IFS within hooks" {
@@ -57,5 +59,6 @@ SH
 
 @test "doesn't inherit JLENV_VERSION_ORIGIN from environment" {
   JLENV_VERSION_ORIGIN=ignored run jlenv2 version-origin
-  assert_success "${JLENV_ROOT}/version"
+  assert_success 
+  assert_output "${JLENV_ROOT}/version"
 }

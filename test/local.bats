@@ -69,6 +69,7 @@ setup() {
 @test "unsets local version" {
   touch .julia-version
   run jlenv2 local --unset
-  assert_success ""
+  assert_success 
+  assert_output ""
   assert [ ! -e .julia-version ]
 }

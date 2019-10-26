@@ -118,7 +118,8 @@ OUT
 
 @test "adds its own libexec to PATH" {
   run jlenv echo "PATH"
-  assert_success "${BATS_TEST_DIRNAME%/*}/libexec:$PATH"
+  assert_success 
+  assert_output "${BATS_TEST_DIRNAME%/*}/libexec:$PATH"
 }
 
 @test "adds plugin bin dirs to PATH" {
@@ -142,5 +143,6 @@ OUT
 @test "JLENV_HOOK_PATH includes jlenv built-in plugins" {
   unset JLENV_HOOK_PATH
   run jlenv echo "JLENV_HOOK_PATH"
-  assert_success "${JLENV_ROOT}/jlenv.d:${BATS_TEST_DIRNAME%/*}/jlenv.d:/usr/local/etc/jlenv.d:/etc/jlenv.d:/usr/lib/jlenv/hooks"
+  assert_success 
+  assert_output "${JLENV_ROOT}/jlenv.d:${BATS_TEST_DIRNAME%/*}/jlenv.d:/usr/local/etc/jlenv.d:/etc/jlenv.d:/usr/lib/jlenv/hooks"
 }

@@ -16,12 +16,14 @@ setup() {
 @test "no version selected" {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
   run jlenv2 version-name
-  assert_success "system"
+  assert_success 
+  assert_output "system"
 }
 
 @test "system version is not checked for existance" {
   JLENV_VERSION=system run jlenv2 version-name
-  assert_success "system"
+  assert_success 
+  assert_output "system"
 }
 
 @test "JLENV_VERSION can be overridden by hook" {
@@ -30,7 +32,8 @@ setup() {
   create_hook version-name test.bash <<<"JLENV_VERSION=1.0.3"
 
   JLENV_VERSION=0.7.0 run jlenv2 version-name
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "carries original IFS within hooks" {
@@ -53,10 +56,12 @@ OUT
 
   cat > ".julia-version" <<<"0.7.0"
   run jlenv2 version-name
-  assert_success "0.7.0"
+  assert_success 
+  assert_output "0.7.0"
 
   JLENV_VERSION=1.0.3 run jlenv2 version-name
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "local file has precedence over global" {
@@ -65,16 +70,19 @@ OUT
 
   cat > "${JLENV_ROOT}/version" <<<"0.7.0"
   run jlenv2 version-name
-  assert_success "0.7.0"
+  assert_success 
+  assert_output "0.7.0"
 
   cat > ".julia-version" <<<"1.0.3"
   run jlenv2 version-name
-  assert_success "1.0.3"
+  assert_success 
+  assert_output "1.0.3"
 }
 
 @test "missing version" {
   JLENV_VERSION=1.2 run jlenv2 version-name
-  assert_failure "jlenv: version 'v1.2' is not installed (set by JLENV_VERSION environment variable)"
+  assert_failure 
+  assert_output "jlenv: version 'v1.2' is not installed (set by JLENV_VERSION environment variable)"
 }
 
 @test "version with prefix in name" {
