@@ -1,27 +1,25 @@
 #!/usr/bin/env bash
-#
-# Summary: List Julia version numbers that contain the given executable
-#
-# Usage: jlenv [<opts>] whence [--path] <command>
-#
-# The list is a simple version list, similar to $(jlenv versions --bare).
-# 
-# Options:
-#   --path  Print the path to the version(s) of Julia.
 
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
+_whence() {
+  local command="$1"
+  com_versions --bare | while read version; do
+    path="$(jlenv-prefix "$version")/bin/${command}"
+    if [ -x "$path" ]; then
+      [ "$print_paths" ] && echo "$path" || echo "$version"
+    fi
+  done
+}
 
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
+jlenv_whence()
+## Summary: List Julia version numbers that contain the given executable
+##
+## Usage: jlenv [<opts>] whence [--path] <command>
+##
+## The list is a simple version list, similar to $(jlenv versions --bare).
+## 
+## Options:
+##   --path  Print the path to the version(s) of Julia.
+{
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
   echo --path
@@ -35,21 +33,13 @@ else
   print_paths=""
 fi
 
-whence() {
-  local command="$1"
-  com_versions --bare | while read version; do
-    path="$(jlenv-prefix "$version")/bin/${command}"
-    if [ -x "$path" ]; then
-      [ "$print_paths" ] && echo "$path" || echo "$version"
-    fi
-  done
-}
-
 JLENV_COMMAND="$1"
 if [ -z "$JLENV_COMMAND" ]; then
   echo 'deprecated: jlenv-help --usage whence >&2'
   exit 1
 fi
 
-result="$(whence "$JLENV_COMMAND")"
+result="$(_whence "$JLENV_COMMAND")"
 [ -n "$result" ] && echo "$result"
+
+}

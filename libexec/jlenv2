@@ -39,6 +39,7 @@ source "${gsu_dir}/jlenv-version-file-read"
 source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
 source "${gsu_dir}/jlenv-versions"
+source "${gsu_dir}/jlenv-whence"
 
 com_hooks()
 {
@@ -88,6 +89,11 @@ com_version-origin()
 com_versions()
 {
     jlenv_versions "$@"
+    ret=$GSU_SUCCESS
+}
+com_whence()
+{
+    jlenv_whence "$@"
     ret=$GSU_SUCCESS
 }
 #####################################################################

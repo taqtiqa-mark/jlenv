@@ -18,21 +18,21 @@ create_executable() {
   create_executable "2.0" "juliac"
   create_executable "1.0" "genie"
 
-  run jlenv-whence julia
+  run jlenv2 whence julia
   assert_success
   assert_output --stdin <<OUT
 0.7
 2.0
 OUT
 
-  run jlenv-whence juliac
+  run jlenv2 whence juliac
   assert_success
   assert_output --stdin <<OUT
 1.0
 2.0
 OUT
 
-  run jlenv-whence genie
+  run jlenv2 whence genie
   assert_success "1.0"
 }
 
@@ -43,20 +43,20 @@ OUT
   create_executable "2.0" "juliac"
   create_executable "1.0" "genie"
 
-  run jlenv-whence --path julia
+  run jlenv2 whence --path julia
   assert_success
   assert_output --stdin <<OUT
 ${JLENV_TEST_DIR}/root/versions/0.7/bin/julia
 ${JLENV_TEST_DIR}/root/versions/2.0/bin/julia
 OUT
 
-  run jlenv-whence --path juliac
+  run jlenv2 whence --path juliac
   assert_success
   assert_output --stdin <<OUT
 ${JLENV_TEST_DIR}/root/versions/1.0/bin/juliac
 ${JLENV_TEST_DIR}/root/versions/2.0/bin/juliac
 OUT
 
-  run jlenv-whence --path genie
+  run jlenv2 whence --path genie
   assert_success "/tmp/jlenv.9cy/root/versions/1.0/bin/genie"
 }
