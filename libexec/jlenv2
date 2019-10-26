@@ -40,6 +40,7 @@ source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
 source "${gsu_dir}/jlenv-versions"
 source "${gsu_dir}/jlenv-whence"
+source "${gsu_dir}/jlenv-which"
 
 com_hooks()
 {
@@ -94,6 +95,11 @@ com_versions()
 com_whence()
 {
     jlenv_whence "$@"
+    ret=$GSU_SUCCESS
+}
+com_which()
+{
+    jlenv_which "$@"
     ret=$GSU_SUCCESS
 }
 #####################################################################

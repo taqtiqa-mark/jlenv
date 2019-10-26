@@ -1,28 +1,4 @@
 #!/usr/bin/env bash
-#
-# Summary: Display the full path to an executable
-#
-# Usage: jlenv [<opts>] which <command>
-#
-# Displays the full path to the executable that jlenv will invoke when
-# you run the given command.  Symlinks in paths are not resolved/looked up.
-
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
-
-[ -n "$JLENV_DEBUG" ] && set -x
-
-# Provide jlenv completions
-if [ "$1" = "--complete" ]; then
-  exec jlenv-shims --short
-fi
 
 remove_from_path() {
   local path_to_remove="$1"
@@ -36,10 +12,24 @@ remove_from_path() {
   echo "${result#:}"
 }
 
+jlenv_which()
+# Summary: Display the full path to an executable
+#
+# Usage: jlenv [<opts>] which <command>
+#
+# Displays the full path to the executable that jlenv will invoke when
+# you run the given command.  Symlinks in paths are not resolved/looked up.
+{
+
+# Provide jlenv completions
+if [ "$1" = "--complete" ]; then
+  exec com_shims --short
+fi
+
 JLENV_COMMAND="$1"
 
 if [ -z "$JLENV_COMMAND" ]; then
-  echo 'deprecated: jlenv-help --usage which >&2'
+  echo 'deprecated: com_help --usage which >&2'
   exit 1
 fi
 
@@ -53,7 +43,7 @@ else
 fi
 
 OLDIFS="$IFS"
-IFS=$'\n' scripts=(`jlenv-hooks which`)
+IFS=$'\n' scripts=($(com_hooks which))
 IFS="$OLDIFS"
 for script in "${scripts[@]}"; do
   source "$script"
@@ -67,7 +57,7 @@ elif [ "$JLENV_VERSION" != "system" ] && [ ! -d "${JLENV_ROOT}/versions/${JLENV_
 else
   echo "jlenv: $JLENV_COMMAND: command not found" >&2
 
-  versions="$(jlenv-whence "$JLENV_COMMAND" || true)"
+  versions="$(com_whence "$JLENV_COMMAND" || true)"
   if [ -n "$versions" ]; then
     { echo
       echo "The \$($1) command exists in these Julia versions:"
@@ -78,3 +68,4 @@ else
 
   exit 127
 fi
+}

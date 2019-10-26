@@ -18,10 +18,10 @@ create_executable() {
   create_executable "0.7" "julia"
   create_executable "2.0" "juliac"
 
-  JLENV_VERSION=0.7 run jlenv-which julia
+  JLENV_VERSION=0.7 run jlenv2 which julia
   assert_success "${JLENV_ROOT}/versions/0.7/bin/julia"
 
-  JLENV_VERSION=2.0 run jlenv-which juliac
+  JLENV_VERSION=2.0 run jlenv2 which juliac
   assert_success "${JLENV_ROOT}/versions/2.0/bin/juliac"
 }
 
@@ -29,7 +29,7 @@ create_executable() {
   create_executable "${JLENV_TEST_DIR}/bin" "kill-all-humans"
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
-  JLENV_VERSION=system run jlenv-which kill-all-humans
+  JLENV_VERSION=system run jlenv2 which kill-all-humans
   assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
@@ -37,7 +37,7 @@ create_executable() {
   create_executable "${JLENV_TEST_DIR}/bin" "kill-all-humans"
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
-  PATH="${JLENV_ROOT}/shims:$PATH" JLENV_VERSION=system run jlenv-which kill-all-humans
+  PATH="${JLENV_ROOT}/shims:$PATH" JLENV_VERSION=system run jlenv2 which kill-all-humans
   assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
@@ -45,7 +45,7 @@ create_executable() {
   create_executable "${JLENV_TEST_DIR}/bin" "kill-all-humans"
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
-  PATH="$PATH:${JLENV_ROOT}/shims" JLENV_VERSION=system run jlenv-which kill-all-humans
+  PATH="$PATH:${JLENV_ROOT}/shims" JLENV_VERSION=system run jlenv2 which kill-all-humans
   assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
@@ -54,7 +54,7 @@ create_executable() {
   create_executable "${JLENV_ROOT}/shims" "kill-all-humans"
 
   PATH="${JLENV_ROOT}/shims:${JLENV_ROOT}/shims:/tmp/non-existent:$PATH:${JLENV_ROOT}/shims" \
-    JLENV_VERSION=system run jlenv-which kill-all-humans
+    JLENV_VERSION=system run jlenv2 which kill-all-humans
   assert_success "${JLENV_TEST_DIR}/bin/kill-all-humans"
 }
 
@@ -64,25 +64,25 @@ create_executable() {
   cd "$JLENV_TEST_DIR"
   touch kill-all-humans
   chmod +x kill-all-humans
-  JLENV_VERSION=system run jlenv-which kill-all-humans
+  JLENV_VERSION=system run jlenv2 which kill-all-humans
   assert_failure "jlenv: kill-all-humans: command not found"
 }
 
 @test "version not installed" {
   create_executable "2.0" "juliac"
-  JLENV_VERSION=1.9 run jlenv-which juliac
+  JLENV_VERSION=1.9 run jlenv2 which juliac
   assert_failure "jlenv: version \`1.9' is not installed (set by JLENV_VERSION environment variable)"
 }
 
 @test "no executable found" {
   create_executable "0.7" "juliac"
-  JLENV_VERSION=0.7 run jlenv-which rake
+  JLENV_VERSION=0.7 run jlenv2 which rake
   assert_failure "jlenv: rake: command not found"
 }
 
 @test "no executable found for system version" {
   export PATH="$(path_without "rake")"
-  JLENV_VERSION=system run jlenv-which rake
+  JLENV_VERSION=system run jlenv2 which rake
   assert_failure "jlenv: rake: command not found"
 }
 
@@ -91,7 +91,7 @@ create_executable() {
   create_executable "1.9" "juliac"
   create_executable "2.0" "juliac"
 
-  JLENV_VERSION=0.7 run jlenv-which juliac
+  JLENV_VERSION=0.7 run jlenv2 which juliac
   assert_failure
   assert_output <<OUT
 jlenv: juliac: command not found
@@ -109,7 +109,7 @@ echo HELLO="\$(printf ":%s" "\${hellos[@]}")"
 exit
 SH
 
-  IFS=$' \t\n' JLENV_VERSION=system run jlenv-which anything
+  IFS=$' \t\n' JLENV_VERSION=system run jlenv2 which anything
   assert_success
   assert_output "HELLO=:hello:ugly:world:again"
 }
@@ -122,7 +122,7 @@ SH
   mkdir -p "$JLENV_TEST_DIR"
   cd "$JLENV_TEST_DIR"
 
-  JLENV_VERSION= run jlenv-which julia
+  JLENV_VERSION= run jlenv2 which julia
   assert_success 
   assert_output "${JLENV_ROOT}/versions/0.7/bin/julia"
 }
