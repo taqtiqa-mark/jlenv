@@ -99,7 +99,7 @@ remove_outdated_shims() {
 # List basenames of executables for every Julia version
 list_executable_names() {
   local version file
-  jlenv-versions --bare --skip-aliases | \
+  com_versions --bare --skip-aliases | \
   while read version; do
     for file in "${JLENV_ROOT}/versions/${version}/bin/"*; do
       echo "${file##*/}"

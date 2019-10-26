@@ -36,7 +36,7 @@ set -e
 if [ "$1" = "--complete" ]; then
   echo --unset
   echo system
-  exec jlenv-versions --bare
+  exec com_versions --bare
 fi
 
 JLENV_VERSION="$1"
@@ -44,10 +44,10 @@ JLENV_VERSION="$1"
 if [ "$JLENV_VERSION" = "--unset" ]; then
   rm -f .julia-version
 elif [ -n "$JLENV_VERSION" ]; then
-  jlenv-version-file-write .julia-version "$JLENV_VERSION"
+  com_version-file-write .julia-version "$JLENV_VERSION"
 else
   if version_file="$(com_version-file "$PWD")"; then
-    jlenv-version-file-read "$version_file"
+    com_version-file-read "$version_file"
   else
     echo "jlenv: no local version configured for this directory" >&2
     exit 1

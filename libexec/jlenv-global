@@ -28,14 +28,14 @@ set -e
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
   echo system
-  exec jlenv-versions --bare
+  exec com_versions --bare
 fi
 
 JLENV_VERSION="$1"
 JLENV_VERSION_FILE="${JLENV_ROOT}/version"
 
 if [ -n "$JLENV_VERSION" ]; then
-  jlenv-version-file-write "$JLENV_VERSION_FILE" "$JLENV_VERSION"
+  com_version-file-write "$JLENV_VERSION_FILE" "$JLENV_VERSION"
 else
-  jlenv-version-file-read "$JLENV_VERSION_FILE" || echo system
+  com_version-file-read "$JLENV_VERSION_FILE" || echo system
 fi

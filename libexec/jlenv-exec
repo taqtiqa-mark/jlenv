@@ -25,7 +25,7 @@ if [ "$1" = "--complete" ]; then
   exec jlenv-shims --short
 fi
 
-JLENV_VERSION="$(jlenv-version-name)"
+JLENV_VERSION="$(com_version-name)"
 JLENV_COMMAND="$1"
 
 if [ -z "$JLENV_COMMAND" ]; then

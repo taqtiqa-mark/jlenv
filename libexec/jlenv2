@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #######################################################################
-# gsu-based jlenv - a PoC way to write a hello world program
+# gsu-based jlenv - a PoC generic way to write a hello world program
 # -----------------------------------------------------------------
 # It not only requires one to download and install some totally weird
 # git repo, it also takes about 50 lines of specially written code
@@ -13,7 +13,7 @@ source ${src_dir}/jlenv-shared
 
 gsu_dir="$(resolve_path "${gsu_dir:-${BASH_SOURCE[0]%/*}}")"
 
-gsu_errors='
+gsu_errors="
     E_NO             No Julia install found.
     E_NO_VRSN        No Julia install found of that version.
     E_NO_SYS         No Julia install system wide found.
@@ -24,7 +24,7 @@ gsu_errors='
     E_NO_PRJ_VRSN    No Julia install project wide found of that version.
     E_NO_VRSN_FL     No Julia version file (.julia-version) found.
     E_NO_VRSN_NMBR   No Julia version read from .julia-version.
-'
+"
 
 # man page banner text
 gsu_banner_txt='Robust Julia version management.'
@@ -38,6 +38,7 @@ source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-file-read"
 source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
+source "${gsu_dir}/jlenv-versions"
 
 com_hooks()
 {
@@ -84,7 +85,11 @@ com_version-origin()
     jlenv_version_origin "$@"
     ret=$GSU_SUCCESS
 }
-
+com_versions()
+{
+    jlenv_versions "$@"
+    ret=$GSU_SUCCESS
+}
 #####################################################################
 #
 #  Start-up

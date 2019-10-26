@@ -37,7 +37,7 @@ fi
 
 whence() {
   local command="$1"
-  jlenv-versions --bare | while read version; do
+  com_versions --bare | while read version; do
     path="$(jlenv-prefix "$version")/bin/${command}"
     if [ -x "$path" ]; then
       [ "$print_paths" ] && echo "$path" || echo "$version"

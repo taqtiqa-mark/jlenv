@@ -43,7 +43,7 @@ if [ -z "$JLENV_COMMAND" ]; then
   exit 1
 fi
 
-JLENV_VERSION="${JLENV_VERSION:-$(jlenv-version-name)}"
+JLENV_VERSION="${JLENV_VERSION:-$(com_version-name)}"
 
 if [ "$JLENV_VERSION" = "system" ]; then
   PATH="$(remove_from_path "${JLENV_ROOT}/shims")"
@@ -62,7 +62,7 @@ done
 if [ -x "$JLENV_COMMAND_PATH" ]; then
   echo "$JLENV_COMMAND_PATH"
 elif [ "$JLENV_VERSION" != "system" ] && [ ! -d "${JLENV_ROOT}/versions/${JLENV_VERSION}" ]; then
-  echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(jlenv-version-origin))" >&2
+  echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(com_version-origin))" >&2
   exit 1
 else
   echo "jlenv: $JLENV_COMMAND: command not found" >&2

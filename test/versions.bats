@@ -22,27 +22,27 @@ stub_system_julia() {
 @test "no versions installed" {
   stub_system_julia
   assert [ ! -d "${JLENV_ROOT}/versions" ]
-  run jlenv-versions
-  assert_success 
+  run jlenv2 versions
+  assert_success
   assert_line --index 0 "* system (set by ${JLENV_TEST_DIR}/root/version)"
 }
 
 @test "not even system julia available" {
-  PATH="$(path_without julia)" run jlenv-versions
+  PATH="$(path_without julia)" run jlenv2 versions
   assert_failure
   assert_output "Warning: no Julia detected on the system"
 }
 
 @test "bare output no versions installed" {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
-  run jlenv-versions --bare
+  run jlenv2 versions --bare
   assert_success ""
 }
 
 @test "single version installed" {
   stub_system_julia
   create_version "1.9"
-  run jlenv-versions
+  run jlenv2 versions
   assert_success
   assert_line --index 0 "* system (set by ${JLENV_TEST_DIR}/root/version)"
   assert_output --partial '1.9'
@@ -50,7 +50,7 @@ stub_system_julia() {
 
 @test "single version bare" {
   create_version "1.9"
-  run jlenv-versions --bare
+  run jlenv2 versions --bare
   assert_success "1.9"
 }
 
@@ -59,7 +59,7 @@ stub_system_julia() {
   create_version "0.7.0"
   create_version "1.0.3"
   create_version "2.0.0"
-  run jlenv-versions
+  run jlenv2 versions
   assert_success
   assert_output <<OUT
 * system (set by ${JLENV_ROOT}/version)
@@ -73,7 +73,7 @@ OUT
   stub_system_julia
   create_version "1.0.3"
   create_version "2.0.0"
-  JLENV_VERSION=1.0.3 run jlenv-versions
+  JLENV_VERSION=1.0.3 run jlenv2 versions
   assert_success
   assert_line --index 0 '  system'
   assert_line --index 1 '* 1.0.3 (set by JLENV_VERSION environment variable)'
@@ -88,7 +88,7 @@ OUT
 @test "bare doesn't indicate current version" {
   create_version "1.0.3"
   create_version "2.0.0"
-  JLENV_VERSION=1.0.3 run jlenv-versions --bare
+  JLENV_VERSION=1.0.3 run jlenv2 versions --bare
   assert_success
   assert_output <<OUT
 1.0.3
@@ -101,7 +101,7 @@ OUT
   create_version "1.0.3"
   create_version "2.0.0"
   cat > "${JLENV_ROOT}/version" <<<"1.0.3"
-  run jlenv-versions
+  run jlenv2 versions
   assert_success
   assert_output <<OUT
   system
@@ -115,7 +115,7 @@ OUT
   create_version "1.0.3"
   create_version "2.0.0"
   cat > ".julia-version" <<<"1.0.3"
-  run jlenv-versions
+  run jlenv2 versions
   assert_success
   assert_output <<OUT
   system
@@ -128,7 +128,7 @@ OUT
   create_version "1.9"
   touch "${JLENV_ROOT}/versions/hello"
 
-  run jlenv-versions --bare
+  run jlenv2 versions --bare
   assert_success "1.9"
 }
 
@@ -136,7 +136,7 @@ OUT
   create_version "0.7.0"
   ln -s "0.7.0" "${JLENV_ROOT}/versions/0.7"
 
-  run jlenv-versions --bare
+  run jlenv2 versions --bare
   assert_success
   assert_output <<OUT
 0.7
@@ -150,7 +150,7 @@ OUT
   mkdir moo
   ln -s "${PWD}/moo" "${JLENV_ROOT}/versions/1.9"
 
-  run jlenv-versions --bare --skip-aliases
+  run jlenv2 versions --bare --skip-aliases
   assert_success
 
   assert_output <<OUT

@@ -36,7 +36,7 @@ set -e
 if [ "$1" = "--complete" ]; then
   echo --unset
   echo system
-  exec jlenv-versions --bare
+  exec com_versions --bare
 fi
 
 version="$1"

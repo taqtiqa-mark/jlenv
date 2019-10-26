@@ -24,13 +24,13 @@ set -e
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
   echo system
-  exec jlenv-versions --bare
+  exec com_versions --bare
 fi
 
 if [ -n "$1" ]; then
   export JLENV_VERSION="$1"
 elif [ -z "$JLENV_VERSION" ]; then
-  JLENV_VERSION="$(jlenv-version-name)"
+  JLENV_VERSION="$(com_version-name)"
 fi
 
 if [ "$JLENV_VERSION" = "system" ]; then

@@ -114,7 +114,7 @@ SH
   assert_output "HELLO=:hello:ugly:world:again"
 }
 
-@test "discovers version from jlenv-version-name" {
+@test "discovers version from com_version-name" {
   mkdir -p "$JLENV_ROOT"
   cat > "${JLENV_ROOT}/version" <<<"0.7"
   create_executable "0.7" "julia"
