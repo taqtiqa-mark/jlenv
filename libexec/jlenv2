@@ -47,6 +47,7 @@ source "${gsu_dir}/jlenv-init"
 source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
 source "${gsu_dir}/jlenv-rehash"
+source "${gsu_dir}/jlenv-shims"
 source "${gsu_dir}/jlenv-sh-rehash"
 source "${gsu_dir}/jlenv-sh-shell"
 source "${gsu_dir}/jlenv-version"
@@ -94,6 +95,11 @@ com_prefix()
 com_rehash()
 {
     jlenv_rehash "$@"
+    ret=$GSU_SUCCESS
+}
+com_shims()
+{
+    jlenv_shims "$@"
     ret=$GSU_SUCCESS
 }
 com_sh-rehash()

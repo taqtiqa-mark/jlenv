@@ -5,7 +5,7 @@ load libs/bats-assert/load
 load test_helper
 
 @test "no shims" {
-  run jlenv-shims
+  run jlenv2 shims
   assert_success
   assert [ -z "$output" ]
 }
@@ -14,7 +14,7 @@ load test_helper
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/julia"
   touch "${JLENV_ROOT}/shims/genie"
-  run jlenv-shims
+  run jlenv2 shims
   assert_success
   assert_line "${JLENV_ROOT}/shims/julia"
   assert_line "${JLENV_ROOT}/shims/genie"
@@ -24,7 +24,7 @@ load test_helper
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/julia"
   touch "${JLENV_ROOT}/shims/genie"
-  run jlenv-shims --short
+  run jlenv2 shims --short
   assert_success
   assert_line "genie"
   assert_line "julia"
