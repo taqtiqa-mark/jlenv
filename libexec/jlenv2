@@ -43,6 +43,7 @@ gsu_package="jlenv (TODO jlenv---version here)"
 source "${gsu_dir}/jlenv-exec" 
 source "${gsu_dir}/jlenv-global" 
 source "${gsu_dir}/jlenv-hooks" 
+source "${gsu_dir}/jlenv-init" 
 source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
 source "${gsu_dir}/jlenv-sh-shell"
@@ -69,6 +70,11 @@ com_global()
 com_hooks()
 {
     jlenv_hooks "$@"
+    ret=$GSU_SUCCESS
+}
+com_init()
+{
+    jlenv_init "$@"
     ret=$GSU_SUCCESS
 }
 com_local()

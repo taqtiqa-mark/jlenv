@@ -7,27 +7,27 @@ load test_helper
 @test "creates shims and versions directories" {
   assert [ ! -d "${JLENV_ROOT}/shims" ]
   assert [ ! -d "${JLENV_ROOT}/versions" ]
-  run jlenv-init -
+  run jlenv2 init -
   assert_success
   assert [ -d "${JLENV_ROOT}/shims" ]
   assert [ -d "${JLENV_ROOT}/versions" ]
 }
 
 @test "auto rehash" {
-  run jlenv-init -
+  run jlenv2 init -
   assert_success
   assert_line "command jlenv rehash 2>/dev/null"
 }
 
 @test "setup shell completions" {
   root="$(cd $BATS_TEST_DIRNAME/.. && pwd)"
-  run jlenv-init - bash
+  run jlenv2 init - bash
   assert_success
   assert_line "source '${root}/test/../libexec/../completions/jlenv.bash'"
 }
 
 @test "detect parent shell" {
-  SHELL=/bin/false run jlenv-init -
+  SHELL=/bin/false run jlenv2 init -
   assert_success
   assert_line "export JLENV_SHELL=bash"
 }
@@ -37,7 +37,7 @@ load test_helper
   cd "$JLENV_TEST_DIR"
   cat > myscript.sh <<OUT
 #!/bin/sh
-eval "\$(jlenv-init -)"
+eval "\$(jlenv2 init -)"
 echo \$JLENV_SHELL
 OUT
   chmod +x myscript.sh
@@ -48,63 +48,63 @@ OUT
 
 @test "setup shell completions (fish)" {
   root="$(cd $BATS_TEST_DIRNAME/.. && pwd)"
-  run jlenv-init - fish
+  run jlenv2 init - fish
   assert_success
   assert_line "source '${root}/test/../libexec/../completions/jlenv.fish'"
 }
 
 @test "fish instructions" {
-  run jlenv-init fish
+  run jlenv2 init fish
   assert [ "$status" -eq 1 ]
   assert_line 'status --is-interactive; and source (jlenv init -|psub)'
 }
 
 @test "option to skip rehash" {
-  run jlenv-init - --no-rehash
+  run jlenv2 init - --no-rehash
   assert_success
   refute_line "jlenv rehash 2>/dev/null"
 }
 
 @test "adds shims to PATH" {
   export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
-  run jlenv-init - bash
+  run jlenv2 init - bash
   assert_success
   assert_line --index 0 'export PATH="'${JLENV_ROOT}'/shims:${PATH}"'
 }
 
 @test "adds shims to PATH (fish)" {
   export PATH="${BATS_TEST_DIRNAME}/../libexec:/usr/bin:/bin:/usr/local/bin"
-  run jlenv-init - fish
+  run jlenv2 init - fish
   assert_success
   assert_line --index 0 "set -gx PATH '${JLENV_ROOT}/shims' \$PATH"
 }
 
 @test "can add shims to PATH more than once" {
   export PATH="${JLENV_ROOT}/shims:$PATH"
-  run jlenv-init - bash
+  run jlenv2 init - bash
   assert_success
   assert_line --index 0 'export PATH="'${JLENV_ROOT}'/shims:${PATH}"'
 }
 
 @test "can add shims to PATH more than once (fish)" {
   export PATH="${JLENV_ROOT}/shims:$PATH"
-  run jlenv-init - fish
+  run jlenv2 init - fish
   assert_success
   assert_line --index 0 "set -gx PATH '${JLENV_ROOT}/shims' \$PATH"
 }
 
 @test "outputs sh-compatible syntax" {
-  run jlenv-init - bash
+  run jlenv2 init - bash
   assert_success
   assert_line '  case "$command" in'
 
-  run jlenv-init - zsh
+  run jlenv2 init - zsh
   assert_success
   assert_line '  case "$command" in'
 }
 
 @test "outputs fish-specific syntax (fish)" {
-  run jlenv-init - fish
+  run jlenv2 init - fish
   assert_success
   assert_line '  switch "$command"'
   refute_line '  case "$command" in'
