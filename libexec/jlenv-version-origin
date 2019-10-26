@@ -17,7 +17,7 @@ jlenv_version_origin()
   unset JLENV_VERSION_ORIGIN
 
   OLDIFS="$IFS"
-  IFS=$'\n' scripts=($(com_hooks com_version-origin))
+  IFS=$'\n' scripts=($(com_hooks version-origin))
   IFS="$OLDIFS"
   for script in "${scripts[@]}"; do
     source "$script"
