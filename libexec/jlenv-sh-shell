@@ -109,7 +109,7 @@ EOS
 fi
 
 # Make sure the specified version is installed.
-if jlenv-prefix "$version" >/dev/null; then
+if com_prefix "$version" >/dev/null; then
   if [ "$version" != "$JLENV_VERSION" ]; then
     case "$shell" in
     fish )

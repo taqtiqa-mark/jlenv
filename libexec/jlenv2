@@ -12,6 +12,9 @@
 #https://unix.stackexchange.com/questions/188327/how-do-i-explicitly-and-safely-force-the-use-of-a-built-in-command-in-bash
 #https://unix.stackexchange.com/questions/543792/how-to-protect-bash-function-from-being-overridden
 
+# TODO Completions
+# https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/
+
 src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${src_dir}/jlenv-shared
 
@@ -28,6 +31,7 @@ gsu_errors="
     E_NO_PRJ_VRSN    No Julia install project wide found of that version.
     E_NO_VRSN_FL     No Julia version file (.julia-version) found.
     E_NO_VRSN_NMBR   No Julia version read from .julia-version.
+    E_HLP            Incorrect usage. Please see the error message.
 "
 
 # man page banner text
@@ -37,10 +41,12 @@ gsu_banner_txt='Robust Julia version management.'
 gsu_package="jlenv (TODO jlenv---version here)"
 
 source "${gsu_dir}/jlenv-hooks" 
+source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
 source "${gsu_dir}/jlenv-version"
 source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-file-read"
+source "${gsu_dir}/jlenv-version-file-write"
 source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
 source "${gsu_dir}/jlenv-versions"
@@ -51,6 +57,13 @@ com_hooks()
 {
     jlenv_hooks "$@"
     ret=$GSU_SUCCESS
+}
+com_local()
+{
+    jlenv_local "$@"
+    ret=$ret
+    result=$result
+    return $ret
 }
 com_prefix()
 {
@@ -67,7 +80,7 @@ com_version-file()
     jlenv_version_file "$@"
     ret=$ret
     result=$result
-    return
+    return $ret
 }
 com_version-file-read() 
 {
@@ -84,6 +97,13 @@ com_version-file-read()
     ret=$ret
     result=$result
     return $ret   
+}
+com_version-file-write()
+{
+    jlenv_version_file_write "$@"
+    ret=$ret
+    result=$result
+    return $ret
 }
 com_version-name()
 {

@@ -39,4 +39,7 @@ if [ ! -d "$JLENV_PREFIX_PATH" ]; then
 fi
 
 echo "$JLENV_PREFIX_PATH"
+ret=$GSU_SUCCESS
+result="$JLENV_PREFIX_PATH"
+return $ret
 }

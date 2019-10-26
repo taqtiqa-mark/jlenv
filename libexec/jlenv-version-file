@@ -10,9 +10,10 @@ find_local_version_file() {
       return="${root}/.julia-version"
       break
     fi
-    if [ -n "$root" ]
+    if [ ! -n "$root" ]
     then
-      # exit the While loop
+      # search path is empty. We exit the while loop here to set
+      # return and result values.
       ret=-$E_NO_VRSN_FL
       result="Searched: "$1"/.julia-version ... /.julia-version"
       break
@@ -20,7 +21,7 @@ find_local_version_file() {
     root="${root%/*}"
   done
   ret=$ret
-  return="$return"
+  result="$return"
   return $ret
 }
 
@@ -46,7 +47,7 @@ jlenv_version_file()
     find_local_version_file "$target_dir"
     ret=$ret
     result=$result
-    #We fail when given a farget folder and there is no file there.
+    # We fail when given a farget folder and there is no file there.
     return $ret    
   elif [ "$JLENV_DIR" != "$PWD" ]  
   then
