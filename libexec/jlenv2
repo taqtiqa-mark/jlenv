@@ -44,6 +44,7 @@ source "${gsu_dir}/jlenv-global"
 source "${gsu_dir}/jlenv-hooks" 
 source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
+source "${gsu_dir}/jlenv-sh-shell"
 source "${gsu_dir}/jlenv-version"
 source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-file-read"
@@ -74,6 +75,11 @@ com_local()
 com_prefix()
 {
     jlenv_prefix "$@"
+    ret=$GSU_SUCCESS
+}
+com_sh-shell()
+{
+    jlenv_sh_shell "$@"
     ret=$GSU_SUCCESS
 }
 com_version()
