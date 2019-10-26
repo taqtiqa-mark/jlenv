@@ -62,7 +62,15 @@ fi
 num_versions=0
 
 # Include "system" in the non-bare output, if it exists
-if [ -n "$include_system" ] && JLENV_VERSION=system jlenv-which julia >/dev/null 2>&1; then
+JLENV_VERSION_OLD="${JLENV_VERSION}"
+JLENV_VERSION=system
+# Somewhow this swallows the cursor/shell
+#syschk=$(jlenv2 which julia)
+JLENV_VERSION="${JLENV_VERSION_OLD}"
+ret=$ret
+result=$result
+if [ -n "$include_system" ] && [ "$ret" -eq 0 ]
+then
   print_version system
 fi
 

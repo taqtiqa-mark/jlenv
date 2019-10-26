@@ -12,7 +12,7 @@ setup() {
 @test "fails without arguments" {
   run jlenv2 version-file-read
   assert_failure
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 jlenv2: version-file-read
 jlenv2: need at least 1 args, 0 given: invalid number of arguments
 OUT
@@ -21,7 +21,7 @@ OUT
 @test "fails with more than one argument" {
   run jlenv2 version-file-read a b
   assert_failure
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 jlenv2: version-file-read
 jlenv2: need at most 1 args, 2 given: invalid number of arguments
 OUT

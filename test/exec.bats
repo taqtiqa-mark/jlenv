@@ -27,7 +27,7 @@ create_executable() {
   cd "$JLENV_TEST_DIR"
   echo 1.9 > .julia-version
   run jlenv-exec juliac
-  assert_failure "jlenv: version \`1.9' is not installed (set by $PWD/.julia-version)"
+  assert_failure "jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)"
 }
 
 @test "completes with names of executables" {

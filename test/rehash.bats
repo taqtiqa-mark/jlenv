@@ -54,7 +54,7 @@ OUT
   touch "${JLENV_ROOT}/shims/oldshim1"
   chmod +x "${JLENV_ROOT}/shims/oldshim1"
 
-  create_executable "2.0" "rake"
+  create_executable "2.0" "genie"
   create_executable "2.0" "julia"
 
   run jlenv-rehash
@@ -78,7 +78,7 @@ OUT
   assert_success ""
 
   assert [ ! -e "${JLENV_ROOT}/shims/genie" ]
-  assert [ ! -e "${JLENV_ROOT}/shims/rake" ]
+  assert [ ! -e "${JLENV_ROOT}/shims/juliac" ]
   assert [ ! -e "${JLENV_ROOT}/shims/uni" ]
 }
 
@@ -88,7 +88,8 @@ OUT
   assert [ ! -e "${JLENV_ROOT}/shims/julia" ]
 
   run jlenv-rehash
-  assert_success ""
+  assert_success 
+  assert_output ""
 
   run ls "${JLENV_ROOT}/shims"
   assert_success

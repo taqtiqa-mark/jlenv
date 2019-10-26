@@ -41,8 +41,8 @@ SH
 
   JLENV_VERSION=system IFS=$' \t\n' run jlenv2 version-name env
   assert_success
-  assert_output <<OUT
-HELLO=:hello:ugly:world:again"
+  assert_output --stdin <<OUT
+HELLO=:hello:ugly:world:again
 system
 OUT
 }

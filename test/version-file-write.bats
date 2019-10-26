@@ -19,7 +19,7 @@ setup() {
 @test "setting nonexistent version fails" {
   assert [ ! -e ".julia-version" ]
   run jlenv2 version-file-write ".julia-version" "0.7.0"
-  assert_failure "jlenv: version \`0.7.0' not installed"
+  assert_failure "jlenv: version 'v0.7.0' not installed"
   assert [ ! -e ".julia-version" ]
 }
 

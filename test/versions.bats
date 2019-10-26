@@ -61,7 +61,7 @@ stub_system_julia() {
   create_version "2.0.0"
   run jlenv2 versions
   assert_success
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 * system (set by ${JLENV_ROOT}/version)
   0.7.0
   1.0.3
@@ -90,7 +90,7 @@ OUT
   create_version "2.0.0"
   JLENV_VERSION=1.0.3 run jlenv2 versions --bare
   assert_success
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 1.0.3
 2.0.0
 OUT
@@ -103,7 +103,7 @@ OUT
   cat > "${JLENV_ROOT}/version" <<<"1.0.3"
   run jlenv2 versions
   assert_success
-  assert_output <<OUT
+  assert_output --stdin <<OUT
   system
 * 1.0.3 (set by ${JLENV_ROOT}/version)
   2.0.0
@@ -117,7 +117,7 @@ OUT
   cat > ".julia-version" <<<"1.0.3"
   run jlenv2 versions
   assert_success
-  assert_output <<OUT
+  assert_output --stdin <<OUT
   system
 * 1.0.3 (set by ${JLENV_TEST_DIR}/.julia-version)
   2.0.0
@@ -129,7 +129,8 @@ OUT
   touch "${JLENV_ROOT}/versions/hello"
 
   run jlenv2 versions --bare
-  assert_success "1.9"
+  assert_success 
+  assert_output "1.9"
 }
 
 @test "lists symlinks under versions" {
@@ -138,7 +139,7 @@ OUT
 
   run jlenv2 versions --bare
   assert_success
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 0.7
 0.7.0
 OUT
@@ -152,9 +153,7 @@ OUT
 
   run jlenv2 versions --bare --skip-aliases
   assert_success
-
-  assert_output <<OUT
+  assert_output --stdin <<OUT
 0.7.0
-1.9
 OUT
 }
