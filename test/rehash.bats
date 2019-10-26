@@ -13,7 +13,7 @@ create_executable() {
 
 @test "empty rehash" {
   assert [ ! -d "${JLENV_ROOT}/shims" ]
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_success 
   assert_output ""
   assert [ -d "${JLENV_ROOT}/shims" ]
@@ -23,7 +23,7 @@ create_executable() {
 @test "non-writable shims directory" {
   mkdir -p "${JLENV_ROOT}/shims"
   chmod -w "${JLENV_ROOT}/shims"
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_failure 
   assert_output "jlenv: cannot rehash: ${JLENV_ROOT}/shims isn't writable"
 }
@@ -31,7 +31,7 @@ create_executable() {
 @test "rehash in progress" {
   mkdir -p "${JLENV_ROOT}/shims"
   touch "${JLENV_ROOT}/shims/.jlenv-shim"
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_failure 
   assert_output "jlenv: cannot rehash: ${JLENV_ROOT}/shims/.jlenv-shim exists"
 }
@@ -42,7 +42,7 @@ create_executable() {
 
   assert [ ! -e "${JLENV_ROOT}/shims/julia" ]
 
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_success 
   assert_output ""
 
@@ -61,7 +61,7 @@ OUT
   create_executable "2.0" "genie"
   create_executable "2.0" "julia"
 
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_success 
   assert_output ""
 
@@ -72,14 +72,14 @@ OUT
   create_executable "2.0" "unicorn_genie"
   create_executable "2.0" "juliac"
 
-  jlenv-rehash
+  jlenv2 rehash
 
   cp "$JLENV_ROOT"/shims/{juliac,julia}
   cp "$JLENV_ROOT"/shims/{juliac,genie}
   cp "$JLENV_ROOT"/shims/{juliac,uni}
   chmod +x "$JLENV_ROOT"/shims/{juliac,genie,uni}
 
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_success 
   assert_output ""
 
@@ -93,7 +93,7 @@ OUT
 
   assert [ ! -e "${JLENV_ROOT}/shims/julia" ]
 
-  run jlenv-rehash
+  run jlenv2 rehash
   assert_success 
   assert_output ""
 
@@ -111,7 +111,7 @@ echo HELLO="\$(printf ":%s" "\${hellos[@]}")"
 exit
 SH
 
-  IFS=$' \t\n' run jlenv-rehash
+  IFS=$' \t\n' run jlenv2 rehash
   assert_success
   assert_output "HELLO=:hello:ugly:world:again"
 }
