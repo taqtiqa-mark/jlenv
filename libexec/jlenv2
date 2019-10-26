@@ -22,6 +22,7 @@ gsu_errors='
     E_NO_USR_VRSN    No Julia install user wide found of that version.
     E_NO_PRJ         No Julia install project wide found.
     E_NO_PRJ_VRSN    No Julia install project wide found of that version.
+    E_NO_VRSN_FL     No Julia version file (.julia-version) found.
 '
 
 # man page banner text
@@ -29,6 +30,7 @@ gsu_banner_txt='Robust Julia version management.'
 
 source "${gsu_dir}/jlenv-hooks" 
 source "${gsu_dir}/jlenv-version"
+source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
 
@@ -41,6 +43,13 @@ com_version()
 {
     jlenv_version "$@"
     ret=$GSU_SUCCESS
+}
+com_version-file()
+{
+    jlenv_version_file "$@"
+    ret=$ret
+    result=$result
+    return
 }
 com_version-name()
 {

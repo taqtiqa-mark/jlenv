@@ -1,45 +1,64 @@
 #!/usr/bin/env bash
-#
-# Summary: Detect the file that sets the current jlenv version
-#
-# Usage: jlenv [<opts>] version-file [<dir>]
-#
-# This is a low level utility command.  Primarily used internally by jlenv.
-# General users are unlikely to use this command.
-
-
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
-
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
-target_dir="$1"
 
 find_local_version_file() {
   local root="$1"
   while ! [[ "$root" =~ ^//[^/]*$ ]]; do
-    if [ -e "${root}/.julia-version" ]; then
+    if [ -e "${root}/.julia-version" ]
+    then
       echo "${root}/.julia-version"
-      return 0
+      ret=$GSU_SUCCESS
+      return="${root}/.julia-version"
+      break
     fi
-    [ -n "$root" ] || break
+    if [ -n "$root" ]
+    then
+      # exit the While loop
+      ret=-$E_NO_VRSN_FL
+      result="Searched: "$1"/.julia-version ... /.julia-version"
+      break
+    fi
     root="${root%/*}"
   done
-  return 1
+  return $ret
 }
 
-if [ -n "$target_dir" ]; then
-  find_local_version_file "$target_dir"
-else
-  find_local_version_file "$JLENV_DIR" || {
-    [ "$JLENV_DIR" != "$PWD" ] && find_local_version_file "$PWD"
-  } || echo "${JLENV_ROOT}/version"
-fi
+jlenv_version_file()
+## Summary: Detect the file that sets the current jlenv version
+##
+## Usage: jlenv [<opts>] version-file [<dir>]
+##
+## This is a low level utility command.  Primarily used internally 
+## by jlenv. General users are unlikely to use this command.
+## 
+## If given a target we search its heirachy to find .julia-version,
+## and no search is made through the heirachy of $JLENV_DIR then $PWD
+## 
+## If given no argument search for .julia-version is made through 
+## the heirachy of $JLENV_DIR then $PWD
+{
+  target_dir="$1"
+  # If given a place to look we don't search the hierachy of 
+  # $JLENV_DIR and $PWD
+  if [ -n "$target_dir" ]
+  then
+    find_local_version_file "$target_dir"
+    ret=$ret
+    result=$result
+    return
+  elif [ "$JLENV_DIR" != "$PWD" ]  
+  then
+      find_local_version_file "$JLENV_DIR"
+  elif find_local_version_file "$JLENV_DIR"
+  then
+      find_local_version_file "$PWD"
+  fi
+  if [ $ret -lt 0 ]
+  then
+    echo "${JLENV_ROOT}/version"
+    ret=0
+    result="${JLENV_ROOT}/version"
+  fi
+  ret=$ret
+  result=$result
+  return
+}

@@ -28,6 +28,6 @@ jlenv_version_origin()
   elif [ -n "$JLENV_VERSION" ]; then
     echo "JLENV_VERSION environment variable"
   else
-    ./jlenv-version-file
+    com_version-file
   fi
 }

@@ -46,7 +46,7 @@ if [ "$JLENV_VERSION" = "--unset" ]; then
 elif [ -n "$JLENV_VERSION" ]; then
   jlenv-version-file-write .julia-version "$JLENV_VERSION"
 else
-  if version_file="$(jlenv-version-file "$PWD")"; then
+  if version_file="$(com_version-file "$PWD")"; then
     jlenv-version-file-read "$version_file"
   else
     echo "jlenv: no local version configured for this directory" >&2
