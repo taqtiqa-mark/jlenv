@@ -29,7 +29,7 @@ JLENV_VERSION="$(jlenv-version-name)"
 JLENV_COMMAND="$1"
 
 if [ -z "$JLENV_COMMAND" ]; then
-  jlenv-help --usage exec >&2
+  echo 'deprecated: jlenv-help --usage exec >&2'
   exit 1
 fi
 

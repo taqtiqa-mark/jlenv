@@ -39,7 +39,7 @@ remove_from_path() {
 JLENV_COMMAND="$1"
 
 if [ -z "$JLENV_COMMAND" ]; then
-  jlenv-help --usage which >&2
+  echo 'deprecated: jlenv-help --usage which >&2'
   exit 1
 fi
 

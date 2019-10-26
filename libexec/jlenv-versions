@@ -38,7 +38,7 @@ for arg; do
   --bare ) bare=1 ;;
   --skip-aliases ) skip_aliases=1 ;;
   * )
-    jlenv-help --usage versions >&2
+    echo 'deprecated: jlenv-help --usage versions >&2'
     exit 1
     ;;
   esac

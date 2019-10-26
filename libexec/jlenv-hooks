@@ -36,7 +36,7 @@ jlenv_hooks()
 
     JLENV_COMMAND="$1"
     if [ -z "$JLENV_COMMAND" ]; then
-        jlenv-help --usage hooks >&2
+        echo 'deprecated: jlenv-help --usage hooks >&2'
         exit 1
     fi
 

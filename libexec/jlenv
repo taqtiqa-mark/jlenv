@@ -50,7 +50,7 @@ jlenv() {
     if [[ "$cmd" == "sh-"* ]]; then
       echo "jlenv help \"$cmd\""
     else
-      exec jlenv-help "$cmd"
+      echo 'deprecated: exec jlenv-help "$cmd"'
     fi
   else
     exec "$command_path" "$@"
@@ -91,7 +91,7 @@ Options to jlenv:
     -cr|--cron                  Run silently unless we encounter an error
 
 EOF
-    command jlenv-help
+    echo 'deprecated: command jlenv-help'
 }
 
 

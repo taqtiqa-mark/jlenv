@@ -24,7 +24,7 @@ JLENV_VERSION_FILE="$1"
 JLENV_VERSION="$2"
 
 if [ -z "$JLENV_VERSION" ] || [ -z "$JLENV_VERSION_FILE" ]; then
-  jlenv-help --usage version-file-write >&2
+  echo 'deprecated: jlenv-help --usage version-file-write >&2'
   exit 1
 fi
 

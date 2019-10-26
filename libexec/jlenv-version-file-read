@@ -6,6 +6,8 @@ jlenv_version_file_read()
 ##
 ## This is a low level utility command.  Primarily used internally by jlenv.
 ## General users are unlikely to use this command.
+##
+## For full documentation, see: https://github.com/jlenv/jlenv#readme
 {
   VERSION_FILE="$1"
 
