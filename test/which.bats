@@ -123,5 +123,6 @@ SH
   cd "$JLENV_TEST_DIR"
 
   JLENV_VERSION= run jlenv-which julia
-  assert_success "${JLENV_ROOT}/versions/0.7/bin/julia"
+  assert_success 
+  assert_output "${JLENV_ROOT}/versions/0.7/bin/julia"
 }

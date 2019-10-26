@@ -15,15 +15,18 @@ jlenv_version_file_read()
     IFS="${IFS}"$'\r'
     words=( $(cut -b 1-1024 "$VERSION_FILE") )
     version="${words[0]}"
-
+    #TODO: semantic version number check.
     if [ -n "$version" ]; then
       echo "$version"
       ret=$GSU_SUCCESS
-      return="$version"
-      return
+      result="$version"
+      return $ret
     fi
+    ret=-$E_NO_VRSN_NMBR
+    result="The file $VERSION_FILE contained: <start>${words[@]}<end>."
+    return
   fi
-  ret=$E_NO_VRSN_NMBR
-  return="The file $VERSION_FILE contained: <start>${words[@]}<end>."
+  ret=-$E_NO_VRSN_FL
+  result="The file $VERSION_FILE does not exist."
   return
 }

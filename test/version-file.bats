@@ -24,7 +24,8 @@ create_file() {
   assert [ ! -e "${JLENV_ROOT}/version" ]
   assert [ ! -e ".julia-version" ]
   run jlenv2 version-file
-  assert_success "${JLENV_ROOT}/version"
+  assert_success 
+  assert_output "${JLENV_ROOT}/version"
 }
 
 @test "in current directory" {

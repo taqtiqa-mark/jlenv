@@ -44,6 +44,10 @@ jlenv_version_file()
   if [ -n "$target_dir" ]
   then
     find_local_version_file "$target_dir"
+    ret=$ret
+    result=$result
+    #We fail when given a farget folder and there is no file there.
+    return $ret    
   elif [ "$JLENV_DIR" != "$PWD" ]  
   then
       if ! find_local_version_file "$JLENV_DIR"

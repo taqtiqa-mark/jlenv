@@ -58,10 +58,19 @@ com_version-file()
 }
 com_version-file-read() 
 {
+    # only 1 argument allowed
+    gsu_check_arg_count $# 1 1
+    if [ $ret -lt 0 ]
+    then 
+      failed=$ret
+      gsu_msg "version-file-read" 
+      ret=$failed
+      return $ret
+    fi
     jlenv_version_file_read "$@"
     ret=$ret
     result=$result
-    return   
+    return $ret   
 }
 com_version-name()
 {
