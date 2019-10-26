@@ -5,7 +5,7 @@
 # Usage: jlenv [<opts>] rehash
 #
 # Installs shims for all Julia executables known to jlenv (i.e.,
-# `~/.jlenv/versions/*/bin/*`). Run this command after you install a new
+# $(~/.jlenv/versions/*/bin/*)). Run this command after you install a new
 # version of Julia, or install a gem that provides executables.
 
 # Import functions shared between jlenv scripts and plugins.
@@ -15,7 +15,7 @@
 #    1. script_init "$@"
 #    2. script_defaults
 #    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
+# - $(jlevn_<command>) holds functional logic and is called by $(parse_cmds)
 source jlenv-shared
 
 set -e
@@ -52,7 +52,7 @@ remove_prototype_shim() {
 }
 
 # The prototype shim file is a script that re-execs itself, passing
-# its filename and any arguments to `jlenv exec`. This file is
+# its filename and any arguments to $(jlenv exec). This file is
 # hard-linked for every executable and then removed. The linking
 # technique is fast, uses less disk space than unique files, and also
 # serves as a locking mechanism.
@@ -107,9 +107,9 @@ list_executable_names() {
   done
 }
 
-# The basename of each argument passed to `make_shims` will be
+# The basename of each argument passed to $(make_shims) will be
 # registered for installation as a shim. In this way, plugins may call
-# `make_shims` with a glob to register many shims at once.
+# $(make_shims) with a glob to register many shims at once.
 make_shims() {
   local file shim
   for file; do
@@ -125,7 +125,7 @@ register_shim() {
   registered_shims="${registered_shims}${1} "
 }
 
-# Install all the shims registered via `make_shims` or `register_shim` directly.
+# Install all the shims registered via $(make_shims) or $(register_shim) directly.
 install_registered_shims() {
   local shim file
   for shim in $registered_shims; do
@@ -158,7 +158,7 @@ make_shims $(list_executable_names | sort -u)
 
 # Allow plugins to register shims.
 OLDIFS="$IFS"
-IFS=$'\n' scripts=(`jlenv-hooks rehash`)
+IFS=$'\n' scripts=($(com_hooks rehash))
 IFS="$OLDIFS"
 
 for script in "${scripts[@]}"; do

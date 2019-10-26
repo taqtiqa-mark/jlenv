@@ -18,7 +18,7 @@ create_executable() {
 
 @test "fails when version set by environment variable is not installed" {
   export JLENV_VERSION="2.0"
-  run jlenv-exec julia -v
+  run jlenv2 exec julia -v
   assert_failure 
   assert_output "jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)"
 }
@@ -27,7 +27,7 @@ create_executable() {
   mkdir -p "$JLENV_TEST_DIR"
   cd "$JLENV_TEST_DIR"
   echo 1.9 > .julia-version
-  run jlenv-exec juliac
+  run jlenv2 exec juliac
   assert_failure 
   assert_output "jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)"
 }
@@ -52,7 +52,7 @@ echo HELLO="\$(printf ":%s" "\${hellos[@]}")"
 SH
 
   export JLENV_VERSION=system
-  IFS=$' \t\n' run jlenv-exec env
+  IFS=$' \t\n' run jlenv2 exec env
   assert_success
   assert_line "HELLO=:hello:ugly:world:again"
 }
@@ -68,7 +68,7 @@ for arg; do
 done
 SH
 
-  run jlenv-exec julia -w "/path to/julia script.rb" -- extra args
+  run jlenv2 exec julia -w "/path to/julia script.rb" -- extra args
   assert_success
   assert_line --index 0 "${JLENV_TEST_DIR}/root/versions/2.0/bin/julia"
   assert_output --partial --stdin <<'OUT'
