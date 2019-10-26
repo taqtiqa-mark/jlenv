@@ -19,6 +19,8 @@ find_local_version_file() {
     fi
     root="${root%/*}"
   done
+  ret=$ret
+  return="$return"
   return $ret
 }
 
@@ -42,15 +44,15 @@ jlenv_version_file()
   if [ -n "$target_dir" ]
   then
     find_local_version_file "$target_dir"
-    ret=$ret
-    result=$result
-    return
   elif [ "$JLENV_DIR" != "$PWD" ]  
   then
-      find_local_version_file "$JLENV_DIR"
-  elif find_local_version_file "$JLENV_DIR"
-  then
-      find_local_version_file "$PWD"
+      if ! find_local_version_file "$JLENV_DIR"
+      then
+        find_local_version_file "$PWD"
+      fi
+  else
+    #  "$JLENV_DIR" = "$PWD", find using JLENV_DIR
+    find_local_version_file "$JLENV_DIR"
   fi
   if [ $ret -lt 0 ]
   then
@@ -60,5 +62,5 @@ jlenv_version_file()
   fi
   ret=$ret
   result=$result
-  return
+  return $ret
 }

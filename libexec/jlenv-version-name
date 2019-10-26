@@ -23,7 +23,7 @@ jlenv_version_name()
   fi
 
   OLDIFS="$IFS"
-  IFS=$'\n' scripts=($(com_hooks com_version-name))
+  IFS=$'\n' scripts=($(com_hooks version-name))
   IFS="$OLDIFS"
   for script in "${scripts[@]}"; do
     source "$script"

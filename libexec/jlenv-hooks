@@ -42,11 +42,22 @@ jlenv_hooks()
 
     IFS=: hook_paths=($JLENV_HOOK_PATH)
 
+    # TODO: Skip duplicate paths
+    # The following reorders the JLENV_HOOK_PATH - which we don't want to do....
+    # JLENV_HOOK_PATH=`echo $JLENV_HOOK_PATH | tr ':' '\n' | sort | uniq | tr '\n' ':'`
+    # for a path utility that only adds if not present see:
+    # https://unix.stackexchange.com/a/110045/251061
+    # For the following 1-liner:
+    # echo "$JLENV_HOOK_PATH" | plit on :|sort -k2 | uniq -f1 | sort -k1 | cut -f2-| join back with :
+    # See. 
+    # https://unix.stackexchange.com/a/194790/251061
     shopt -s nullglob
     for path in "${hook_paths[@]}"; do
+        if [ ! -d "$path" ]; then continue; fi
         for script in "${path}/${JLENV_COMMAND}"/*.bash; do
             f="$(resolve_path "${script}")"
-            resolve_link "${f}"
+            f="$(resolve_link "${f}")"
+            echo $f
         done
     done
     shopt -u nullglob

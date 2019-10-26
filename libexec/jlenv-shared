@@ -644,16 +644,24 @@ setup_path() {
 # DESC: Setup the JLENV_HOOK_PATH environment variable.
 # ARGS: None.
 # OUTS: None.
+# WARN: The variable is only added to if that path is not already present.
 setup_jlenv_hook_path() {
-  JLENV_HOOK_PATH="${JLENV_HOOK_PATH:-}:${JLENV_ROOT}/jlenv.d"
+  # Only add if not already present
+  [[ ":$JLENV_HOOK_PATH:" != *":${JLENV_ROOT}/jlenv.d:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${JLENV_ROOT}/jlenv.d"
+
   if [ "${jlenv_dirname%/*}" != "$JLENV_ROOT" ]; then
     # Add jlenv's own `jlenv.d` unless jlenv was cloned to JLENV_ROOT
-    JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${jlenv_dirname%/*}/jlenv.d"
+    [[ ":$JLENV_HOOK_PATH:" != *":${jlenv_dirname%/*}/jlenv.d:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${jlenv_dirname%/*}/jlenv.d"
   fi
-  JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:/usr/local/etc/jlenv.d:/etc/jlenv.d:/usr/lib/jlenv/hooks"
+
+  [[ ":$JLENV_HOOK_PATH:" != *":/usr/local/etc/jlenv.d:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:/usr/local/etc/jlenv.d"
+  [[ ":$JLENV_HOOK_PATH:" != *":/etc/jlenv.d:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:/etc/jlenv.d"
+  [[ ":$JLENV_HOOK_PATH:" != *":/usr/lib/jlenv/hooks:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:/usr/lib/jlenv/hooks"
+
   for plugin_hook in "${JLENV_ROOT}/plugins/"*/etc/jlenv.d; do
-    JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${plugin_hook}"
+    [[ ":$JLENV_HOOK_PATH:" != *":${plugin_hook}:"* ]] && JLENV_HOOK_PATH="${JLENV_HOOK_PATH}:${plugin_hook}"
   done
+
   JLENV_HOOK_PATH="${JLENV_HOOK_PATH#:}"
   export JLENV_HOOK_PATH
 }

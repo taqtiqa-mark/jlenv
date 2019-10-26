@@ -39,10 +39,12 @@ hellos=(\$(printf "hello\\tugly world\\nagain"))
 echo HELLO="\$(printf ":%s" "\${hellos[@]}")"
 SH
 
-  export JLENV_VERSION=system
-  IFS=$' \t\n' run jlenv2 version-name env
+  JLENV_VERSION=system IFS=$' \t\n' run jlenv2 version-name env
   assert_success
-  assert_output "HELLO=:hello:ugly:world:again"
+  assert_output <<OUT
+HELLO=:hello:ugly:world:again"
+system
+OUT
 }
 
 @test "JLENV_VERSION has precedence over local" {
@@ -78,7 +80,7 @@ SH
 @test "version with prefix in name" {
   create_version "0.7.0"
   cat > ".julia-version" <<<"julia-0.7.0"
-  run jlenv2 version-name
+  JLENV_VERSION= run jlenv2 version-name
   assert_success
   assert_output "0.7.0"
 }

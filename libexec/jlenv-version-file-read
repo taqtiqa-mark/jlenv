@@ -1,38 +1,29 @@
 #!/usr/bin/env bash
-#
-# Summary Read version number from given <file>
-#
-# Usage: jlenv [<opts>] version-file-read <file>
-#
-# This is a low level utility command.  Primarily used internally by jlenv.
-# General users are unlikely to use this command.
+jlenv_version_file_read()
+## Summary Read version number from given <file>
+##
+## Usage: jlenv [<opts>] version-file-read <file>
+##
+## This is a low level utility command.  Primarily used internally by jlenv.
+## General users are unlikely to use this command.
+{
+  VERSION_FILE="$1"
 
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
+  if [ -e "$VERSION_FILE" ]; then
+    # Read the first non-whitespace word from the specified version file.
+    # Be careful not to load it whole in case there's something crazy in it.
+    IFS="${IFS}"$'\r'
+    words=( $(cut -b 1-1024 "$VERSION_FILE") )
+    version="${words[0]}"
 
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
-VERSION_FILE="$1"
-
-if [ -e "$VERSION_FILE" ]; then
-  # Read the first non-whitespace word from the specified version file.
-  # Be careful not to load it whole in case there's something crazy in it.
-  IFS="${IFS}"$'\r'
-  words=( $(cut -b 1-1024 "$VERSION_FILE") )
-  version="${words[0]}"
-
-  if [ -n "$version" ]; then
-    echo "$version"
-    exit
+    if [ -n "$version" ]; then
+      echo "$version"
+      ret=$GSU_SUCCESS
+      return="$version"
+      return
+    fi
   fi
-fi
-
-exit 1
+  ret=$E_NO_VRSN_NMBR
+  return="The file $VERSION_FILE contained: <start>${words[@]}<end>."
+  return
+}
