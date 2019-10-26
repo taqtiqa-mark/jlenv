@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+jlenv_version_jlenv()
+## Display the jlenv version.
+##
+## Usage: jlenv version-jlenv
+##
+## Prints the jlenv version number.
+{
+# Provide jlenv completions
+ return
+}

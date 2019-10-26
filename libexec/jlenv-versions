@@ -65,11 +65,11 @@ num_versions=0
 JLENV_VERSION_OLD="${JLENV_VERSION}"
 JLENV_VERSION=system
 # Somewhow this swallows the cursor/shell
-#syschk=$(jlenv2 which julia)
+#syschk=$(com_which julia) 2>/dev/null 1>&2
 JLENV_VERSION="${JLENV_VERSION_OLD}"
 ret=$ret
 result=$result
-if [ -n "$include_system" ] && [ "$ret" -eq 0 ]
+if [ -n "$include_system" ] && [ "$result" = 'system' ]
 then
   print_version system
 fi

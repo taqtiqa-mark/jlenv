@@ -54,6 +54,7 @@ source "${gsu_dir}/jlenv-version"
 source "${gsu_dir}/jlenv-version-file"
 source "${gsu_dir}/jlenv-version-file-read"
 source "${gsu_dir}/jlenv-version-file-write"
+source "${gsu_dir}/jlenv-version-jlenv"
 source "${gsu_dir}/jlenv-version-name"
 source "${gsu_dir}/jlenv-version-origin"
 source "${gsu_dir}/jlenv-versions"
@@ -146,6 +147,13 @@ com_version-file-write()
     ret=$ret
     result=$result
     return $ret
+}
+com_version-jlenv()
+{
+    jlenv_jlenv "$@"
+    ret=$ret
+    result=$result
+    return
 }
 com_version-name()
 {
