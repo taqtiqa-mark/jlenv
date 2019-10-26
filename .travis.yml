@@ -1,6 +1,44 @@
-sudo: false
-language: c
-script:
+sudo: required
+language: ruby
+cache:
+  directories:
+    - bash
+before_install: gem update --system --no-doc # https://github.com/sickill/rainbow/issues/49
+before_script:
+  - whereis bash
+  - bash --version
+  - ./test/install_bash.bash
+  - bash --version
+  - git clone https://github.com/infertux/bashcov.git
+  - cd bashcov/
+  - gem build bashcov.gemspec 
+  - gem install bashcov-2.0.0.gem 
+  - export PATH=$PATH:$PWD
+  - cd ..
+  - gem install codecov
+  - gem install coveralls
+  - gem install codeclimate-test-reporter
+  script:
   # - shellcheck etc/jlenv.d/exec/*
   # - shellcheck libexec/*
-  - test/run
+  - bashcov test/run
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+os:
+  - linux
+rvm:
+  - 2.5.5
+env:
+  matrix:
+    - INSTALL_BASH_VERSION=5.0
+    - INSTALL_BASH_VERSION=4.4
+    - INSTALL_BASH_VERSION=4.3
+    - INSTALL_BASH_VERSION=4.2
+    - INSTALL_BASH_VERSION=4.1
+    - INSTALL_BASH_VERSION=4.0
+matrix:
+  include:
+    - rvm: 2.5.5
+  allow_failures:
+    - env: INSTALL_BASH_VERSION=4.1
+    - env: INSTALL_BASH_VERSION=4.0
