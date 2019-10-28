@@ -1,60 +1,57 @@
 #!/usr/bin/env bash
+jlenv_commands()
+# List all available jlenv commands
 #
-# Summary: List all available jlenv commands
-#
-# Usage: jlenv [<opts>] commands [--sh|--no-sh]
+# Usage: jlenv commands [-n -s]
 #
 # Produce a list of jlenv commands.  This is used internally to provide
 # shell <tab>-completion.
 #
-# See also:  jlenv-completions
+# Options:
+#  -g   List those generic commands.
+#  -s   List those shell specific commands.
+#
+# See also:  jlenv2 complete
+{
 
-# Import functions shared between jlenv scripts and plugins.
-# Function specific to each jlenv-<command> script are:
-# - script_usage
-# - main "$@" which calls
-#    1. script_init "$@"
-#    2. script_defaults
-#    3. parse_cmds "$@"
-# - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
-source jlenv-shared
+  # TODO Options (see jlenv-version)
+  # [c]ron, [n]o-color, [v]erbose
+  gsu_getopts 'gs'
+  eval "$result"
+  ((ret < 0)) && return
 
-set -e
-[ -n "$JLENV_DEBUG" ] && set -x
-
-# Provide jlenv completions
-if [ "$1" = "--complete" ]; then
-  echo --sh
-  echo --no-sh
-  exit
-fi
-
-if [ "$1" = "--sh" ]; then
+if [ "$o_s" = "true" ]; then
   sh=1
   shift
-elif [ "$1" = "--no-sh" ]; then
+elif [ "$o_g" = "true" ]; then
   nosh=1
   shift
 fi
 
-IFS=: paths=($PATH)
+com_complete 1 2>/dev/null 1>&2
+IFS=" " command=($result)
 
 shopt -s nullglob
 
-{ for path in "${paths[@]}"; do
-    for command in "${path}/jlenv-"*; do
-      command="${command##*jlenv-}"
-      if [ -n "$sh" ]; then
-        if [ ${command:0:3} = "sh-" ]; then
-          echo ${command##sh-}
-        fi
-      elif [ -n "$nosh" ]; then
-        if [ ${command:0:3} != "sh-" ]; then
-          echo ${command##sh-}
-        fi
-      else
+{ for command in "${command[@]}"; do
+    if [ -n "$sh" ]; then
+      if [ ${command:0:3} = "sh-" ]; then
         echo ${command##sh-}
       fi
-    done
+    elif [ -n "$nosh" ]; then
+      if [ ${command:0:3} != "sh-" ]; then
+        echo ${command##sh-}
+      fi
+    else
+      echo ${command##sh-}
+    fi
   done
-} | sort | uniq
+} 
+}
+complete_commands()
+{
+  local optstring='nv'
+  gsu_complete_options $optstring "$@"
+  ((ret > 0)) && return
+  gsu_cword_is_option_parameter $optstring "$@"
+}
