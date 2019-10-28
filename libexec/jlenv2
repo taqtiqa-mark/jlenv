@@ -66,6 +66,7 @@ gsu_banner_txt='Robust Julia version management.'
 gsu_package="jlenv (TODO jlenv---version here)"
 
 source "${gsu_dir}/jlenv-commands" 
+source "${gsu_dir}/jlenv-diagnostic" 
 source "${gsu_dir}/jlenv-exec" 
 source "${gsu_dir}/jlenv-global" 
 source "${gsu_dir}/jlenv-hooks" 
@@ -91,6 +92,11 @@ source "${gsu_dir}/jlenv-which"
 com_commands()
 {
     jlenv_commands "$@"
+    ret=$GSU_SUCCESS
+}
+com_diagnostic()
+{
+    jlenv_diagnostic "$@"
     ret=$GSU_SUCCESS
 }
 com_exec()
