@@ -8,6 +8,31 @@
 # to perform what a simple echo 'hello world' would do equally well.
 #######################################################################
 
+#####################################################################
+#
+# XDG base directories
+# https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+#
+# See here for linuc, macOS and Windows
+# https://github.com/rackspace/rack/issues/338#issuecomment-141701188
+PROGRAM_NAME="jlenv2"
+
+JLENV_CACHE_DIR="${XDG_CACHE_HOME:-~/.cache}/$PROGRAM_NAME"
+JLENV_DOWNLOAD_DIR="${XDG_DOWNLOAD_DIR:-~/Downloads}/$PROGRAM_NAME"
+# JLENV_CONFIG_DIR: "This includes user installed plugins even if those 
+# plugins might themselves have files in XDG_DATA_HOME."
+JLENV_CONFIG_DIR="${XDG_CONFIG_HOME:-~/.config}/$PROGRAM_NAME"
+JLENV_DATA_DIR="${XDG_DATA_HOME:-~/.local/share}/$PROGRAM_NAME"
+#Not used:
+#JLENV_RUNTIME_DIR="${XDG_RUNTIME_HOME:-$HOME/.local/share}/$PROGRAM_NAME"
+
+mkdir -p $JLENV_CACHE_DIR $JLENV_CONFIG_DIR $JLENV_DATA_DIR $JLENV_RUNTIME_DIR
+chmod 700 $JLENV_CACHE_DIR $JLENV_CONFIG_DIR $JLENV_DATA_DIR $JLENV_RUNTIME_DIR
+
+#####################################################################
+#
+# GSU
+
 # TODO force use of functions.
 #https://unix.stackexchange.com/questions/188327/how-do-i-explicitly-and-safely-force-the-use-of-a-built-in-command-in-bash
 #https://unix.stackexchange.com/questions/543792/how-to-protect-bash-function-from-being-overridden
