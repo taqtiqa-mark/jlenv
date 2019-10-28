@@ -102,7 +102,9 @@ com_diagnostic()
 com_exec()
 {
     jlenv_exec "$@"
-    ret=$GSU_SUCCESS
+    ret=$ret
+    result=$result
+    return $ret
 }
 com_global()
 {
