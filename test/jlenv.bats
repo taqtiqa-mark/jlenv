@@ -4,112 +4,88 @@ load libs/bats-support/load
 load libs/bats-assert/load
 load test_helper
 
+# The help for each command is tested in the <command>.bats file.
 @test "help invocation" {
-  run jlenv --help
+  run jlenv2 help
   assert_success
-  assert_line --index 0 "$(jlenv---version)"
-  expect=$(cat <<'OUT'
-Options to jlenv:
-     -h|--help                  Displays this help
-     -v|--verbose               Displays verbose output
-    -nc|--no-colo(u)r           Disables colour output
-    -cr|--cron                  Run silently unless we encounter an error
-
-Usage: jlenv [<opts>] <command> [<args>]
-
-Some useful jlenv commands are:
-   commands    List all available jlenv commands
-   local       Set or show the local application-specific Julia version
-   global      Set or show the global Julia version
-   shell       Set or show the shell-specific Julia version
-   rehash      Rehash jlenv shims (run this after installing executables)
-   version     Show the current Julia version and its origin
-   versions    List all Julia versions available to jlenv
-   which       Display the full path to an executable
-   whence      List Julia version numbers that contain the given executable
-
-See $(jlenv help <command>) for information on a specific command.
-For full documentation, see: https://github.com/jlenv/jlenv#readme
-OUT
-)
-  result="$(git -c color.diff=always diff --no-patch --ws-error-highlight=new,old $(echo "$output"|tail -n +2| git hash-object -w --stdin) $(echo "$expect"| git hash-object -w --stdin))"
-  [ "${result}" = "" ]
+  assert_line --index 0 "### jlenv2 -- Robust Julia version management. ###"
 }
 
 @test "blank invocation" {
-  run jlenv
+  run jlenv2
   assert_failure
-  assert_line --index 0 "$(jlenv---version)"
-  expect=$(cat <<'OUT'
-Options to jlenv:
-     -h|--help                  Displays this help
-     -v|--verbose               Displays verbose output
-    -nc|--no-colo(u)r           Disables colour output
-    -cr|--cron                  Run silently unless we encounter an error
+  assert_line --index 0 "# Usage: jlenv2 command [options]"
+  assert_line --index 1 "Available commands:"
+}
 
-Usage: jlenv [<opts>] <command> [<args>]
-
-Some useful jlenv commands are:
-   commands    List all available jlenv commands
-   local       Set or show the local application-specific Julia version
-   global      Set or show the global Julia version
-   shell       Set or show the shell-specific Julia version
-   rehash      Rehash jlenv shims (run this after installing executables)
-   version     Show the current Julia version and its origin
-   versions    List all Julia versions available to jlenv
-   which       Display the full path to an executable
-   whence      List Julia version numbers that contain the given executable
-
-See $(jlenv help <command>) for information on a specific command.
-For full documentation, see: https://github.com/jlenv/jlenv#readme
+@test "only known commands are mad available" {
+  run jlenv2 commands
+  assert_success
+  assert_output --partial --stdin <<'OUT'
+commands
+complete
+exec
+global
+help
+hooks
+init
+local
+man
+prefix
+prefs
+rehash
+root
+shims
+rehash
+shell
+version
+version-file
+version-file-read
+version-file-write
+version-jlenv
+version-name
+version-origin
+versions
+whence
+which
 OUT
-)
-result="$(git -c color.diff=always diff --no-patch --ws-error-highlight=new,old $(echo "$output"|tail -n +2| git hash-object -w --stdin) $(echo "$expect"| git hash-object -w --stdin))"
-[ "${result}" = "" ]
 }
 
 @test "invalid command" {
-  run jlenv does-not-exist
+  run jlenv2 does-not-exist
   assert_failure
   assert_output --partial --stdin <<'OUT'
-jlenv:  No such command: $(does-not-exist)
+jlenv2: does-not-exist: invalid command
+Available commands:
 OUT
 }
 
-@test "default JLENV_ROOT when inherited as empty string" {
-  JLENV_ROOT="" HOME=/home/mislav run jlenv root
-  assert_success
-  assert_output '/home/mislav/.jlenv'
-}
-
-@test "default JLENV_ROOT when inherited as null" {
-  JLENV_ROOT= HOME=/home/mislav run jlenv root
-  assert_success
-  assert_output '/home/mislav/.jlenv'
-}
-
-@test "inherited JLENV_ROOT" {
-  JLENV_ROOT=/opt/jlenv run jlenv root
-  assert_success
-  assert_output "/opt/jlenv"
+# This echo command used to work.  It was used to check env variables.
+# Now we use the jlenv2 diagnostic subcommand
+@test "Cannot inject a command by dropping scripts in libexec" {
+  run jlenv2 echo JLENV_DIR
+  assert_output --partial --stdin <<OUT
+jlenv2: echo: invalid command
+Available commands:
+OUT
 }
 
 @test "default JLENV_DIR" {
-  run jlenv echo JLENV_DIR
+  run jlenv2 echo JLENV_DIR
   assert_output "$(pwd)"
 }
 
 @test "inherited JLENV_DIR" {
   dir="${BATS_TMPDIR}/myproject"
   mkdir -p "$dir"
-  JLENV_DIR="$dir" run jlenv echo JLENV_DIR
+  JLENV_DIR="$dir" run jlenv2 echo JLENV_DIR
   assert_output "${dir}"
 }
 
 @test "invalid JLENV_DIR" {
   dir="${BATS_TMPDIR}/does-not-exist"
   assert [ ! -d "$dir" ]
-  JLENV_DIR="$dir" run jlenv echo JLENV_DIR
+  JLENV_DIR="$dir" run jlenv2 echo JLENV_DIR
   assert_failure
   assert_output --partial --stdin <<OUT
 jlenv:  Cannot change working directory to \$(${dir})
@@ -117,7 +93,7 @@ OUT
 }
 
 @test "adds its own libexec to PATH" {
-  run jlenv echo "PATH"
+  run jlenv2 echo "PATH"
   assert_success 
   assert_output "${BATS_TEST_DIRNAME%/*}/libexec:$PATH"
 }
@@ -125,7 +101,7 @@ OUT
 @test "adds plugin bin dirs to PATH" {
   mkdir -p "$JLENV_ROOT"/plugins/julia-build/bin
   mkdir -p "$JLENV_ROOT"/plugins/jlenv-each/bin
-  run jlenv echo -F: "PATH"
+  run jlenv2 echo -F: "PATH"
   assert_success
   assert_line --index 0 "${BATS_TEST_DIRNAME%/*}/libexec"
   assert_line --index 1 "${JLENV_ROOT}/plugins/julia-build/bin"
@@ -133,16 +109,16 @@ OUT
 }
 
 @test "JLENV_HOOK_PATH preserves value from environment" {
-  JLENV_HOOK_PATH=/my/hook/path:/other/hooks run jlenv echo -F: "JLENV_HOOK_PATH"
+  JLENV_HOOK_PATH=/my/hook/path:/other/hooks run jlenv2 echo -F: "JLENV_HOOK_PATH"
   assert_success
   assert_line --index 0 "/my/hook/path"
   assert_line --index 1 "/other/hooks"
   assert_line --index 2 "${JLENV_ROOT}/jlenv.d"
 }
 
-@test "JLENV_HOOK_PATH includes jlenv built-in plugins" {
+@test "JLENV_HOOK_PATH includes jlenv2 built-in plugins" {
   unset JLENV_HOOK_PATH
-  run jlenv echo "JLENV_HOOK_PATH"
+  run jlenv2 echo "JLENV_HOOK_PATH"
   assert_success 
   assert_output "${JLENV_ROOT}/jlenv.d:${BATS_TEST_DIRNAME%/*}/jlenv.d:/usr/local/etc/jlenv.d:/etc/jlenv.d:/usr/lib/jlenv/hooks"
 }
