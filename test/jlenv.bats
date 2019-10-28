@@ -18,13 +18,14 @@ load test_helper
   assert_line --index 1 "Available commands:"
 }
 
-@test "only known commands are mad available" {
+@test "only known commands are made available" {
   run jlenv2 commands
   assert_success
   assert_output --partial --stdin <<'OUT'
 commands
 complete
 exec
+diagnostic
 global
 help
 hooks
