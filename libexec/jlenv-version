@@ -34,3 +34,11 @@ jlenv_version()
     printf '%s (set by %s)\n' "$(com_version-name)" "$(com_version-origin)"
   fi
 }
+
+complete_version()
+{
+  local optstring='cnv'
+  gsu_complete_options $optstring "$@"
+  ((ret > 0)) && return
+  gsu_cword_is_option_parameter $optstring "$@"
+}
