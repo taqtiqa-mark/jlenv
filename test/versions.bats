@@ -28,6 +28,8 @@ stub_system_julia() {
 }
 
 @test "not even system julia available" {
+  rm -rf "${JLENV_ROOT}/root/version"
+  assert [ ! -d "${JLENV_ROOT}/root/version" ]
   PATH="$(path_without julia)" run jlenv2 versions
   assert_failure
   assert_output "Warning: no Julia detected on the system"

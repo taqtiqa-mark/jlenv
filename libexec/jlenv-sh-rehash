@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-jlenv_sh-rehash()
+jlenv_sh_rehash()
 ## Summary: Rehash jlenv shims (run this after installing executables)
 ##
 ## Usage: jlenv [<opts>] rehash

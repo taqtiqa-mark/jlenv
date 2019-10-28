@@ -19,11 +19,11 @@ if [ "$1" = "--complete" ]; then
 fi
 
 JLENV_VERSION="$1"
-JLENV_VERSION_FILE="${JLENV_ROOT}/version"
 
 if [ -n "$JLENV_VERSION" ]; then
-  com_version-file-write "$JLENV_VERSION_FILE" "$JLENV_VERSION"
+  com_version-file-write "${JLENV_ROOT}/version" "$JLENV_VERSION"
 else
+  JLENV_VERSION_FILE="${JLENV_ROOT}/version"
   com_version-file-read "$JLENV_VERSION_FILE" || echo system
 fi
 }

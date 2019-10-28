@@ -20,30 +20,37 @@ create_executable() {
   export JLENV_VERSION="2.0"
   run jlenv2 exec julia -v
   assert_failure 
-  assert_output "jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)"
+  assert_output --stdin <<OUT
+jlenv: version 'v2.0' is not installed (set by JLENV_VERSION environment variable)
+jlenv2: No Julia version read from JLENV_VERSION, .julia-version.
+OUT
 }
 
 @test "fails when uninstalled version set from .julia-version file" {
   mkdir -p "$JLENV_TEST_DIR"
   cd "$JLENV_TEST_DIR"
   echo 1.9 > .julia-version
-  run jlenv2 exec juliac
+  run jlenv2 exec julia
   assert_failure 
-  assert_output "jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)"
-}
-
-@test "completes with names of executables" {
-  export JLENV_VERSION="2.0"
-  create_executable "julia" "#!/bin/sh"
-
-  jlenv-rehash
-  run jlenv-completions exec
-  assert_success
-  assert_output --stdin <<'OUT'
---help
-julia
+  assert_output --stdin <<OUT
+jlenv: version 'v1.9' is not installed (set by $PWD/.julia-version)
+jlenv2: No Julia version read from JLENV_VERSION, .julia-version.
 OUT
 }
+
+# Completions not yet implemented.
+# @test "completes with names of executables" {
+#   export JLENV_VERSION="2.0"
+#   create_executable "julia" "#!/bin/sh"
+
+#   run jlenv2 rehash
+#   run jlenv-completions exec
+#   assert_success
+#   assert_output --stdin <<'OUT'
+# --help
+# julia
+# OUT
+# }
 
 @test "carries original IFS within hooks" {
   create_hook exec hello.bash <<SH

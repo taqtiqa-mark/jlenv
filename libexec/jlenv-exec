@@ -9,11 +9,17 @@ jlenv_exec()
 {
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then
-  exec jlenv-shims --short
+  exec com_shims --short
 fi
 
 JLENV_VERSION="$(com_version-name)"
 JLENV_COMMAND="$1"
+# Return if the was a problem during com_version-name 
+if [ -z "${JLENV_VERSION}" ]
+then 
+  ret=-$E_NO_VRSN_NMBR
+  return $ret
+fi
 
 if [ -z "$JLENV_COMMAND" ]; then
   echo 'deprecated: jlenv-help --usage exec >&2'

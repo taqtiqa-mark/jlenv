@@ -17,11 +17,15 @@ jlenv_version_name()
 ## This script is used extensively within jlenv code.
 {
   # JLENV_VERSION is null look in the version file.
-  if [ -z "$JLENV_VERSION" ]; then
+  if [ -z "$JLENV_VERSION" ]
+  then
     JLENV_VERSION_FILE="$(com_version-file)"
     JLENV_VERSION="$(com_version-file-read "$JLENV_VERSION_FILE" || true)"
+    JLENV_VERSION_ORIGIN="${JLENV_VERSION_FILE}"
+  else
+    JLENV_VERSION_ORIGIN='JLENV_VERSION environment variable'
   fi
-
+  
   OLDIFS="$IFS"
   IFS=$'\n' scripts=($(com_hooks version-name))
   IFS="$OLDIFS"
@@ -40,6 +44,8 @@ jlenv_version_name()
     echo "${JLENV_VERSION#julia-}"
   else
     echo "jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(com_version-origin))" >&2
-    exit 1
+    ret=-$E_NO_VRSN_NMBR
+    result="jlenv: version 'v${JLENV_VERSION}' is not installed (set by $(com_version-origin))"
+    return $ret
   fi
 }

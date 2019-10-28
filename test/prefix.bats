@@ -47,13 +47,22 @@ load test_helper
 #   rm -f "${BATS_TEST_DIRNAME}/libexec/jlenv-which"
 # }
 
-@test "cannot hijack system installation by script function" {
-  function jlenv-which() {
+@test "cannot hijack system installation by script function of command" {
+  function com_which() {
   echo /bad/user/hijacked/bin/julia
   }
-  export -f jlenv-which
+  export -f com_which
   JLENV_VERSION="system" run jlenv2 prefix
-  refute_output "/bad/user/hijacked"
+  refute_output --partial "/bad/user/hijacked"
+}
+
+@test "cannot hijack system installation by script function of function" {
+  function jlenv_which() {
+  echo /bad/user/hijacked/bin/julia
+  }
+  export -f jlenv_which
+  JLENV_VERSION="system" run jlenv2 prefix
+  refute_output --partial "/bad/user/hijacked"
 }
 
 @test "cannot hijack system installation by \${PATH}" {

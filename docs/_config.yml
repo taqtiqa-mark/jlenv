@@ -7,7 +7,7 @@ github_username:  jlenv
 include_related_posts: true
 plugins:
   - jekyll-relative-links
-theme: jekyll-theme-leap-day
+remote_theme: orderedlist/minimal
 relative_links:
   enabled: true
   collections: true

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 jlenv_version_origin()
-## Summary: Explain how the current Julia version is set
+## Explain how the current Julia version is set
 ##
 ## Usage: jlenv [<opts>] version origin
 ##
@@ -14,7 +14,7 @@ jlenv_version_origin()
 ## This is a low level utility command.  Primarily used internally by jlenv.
 ## General users are unlikely to use this command.
 {
-  unset JLENV_VERSION_ORIGIN
+  # unset JLENV_VERSION_ORIGIN
 
   OLDIFS="$IFS"
   IFS=$'\n' scripts=($(com_hooks version-origin))

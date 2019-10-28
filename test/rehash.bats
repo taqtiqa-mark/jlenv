@@ -84,7 +84,7 @@ OUT
   assert_output ""
 
   assert [ ! -e "${JLENV_ROOT}/shims/genie" ]
-  assert [ ! -e "${JLENV_ROOT}/shims/juliac" ]
+  assert [ ! -e "${JLENV_ROOT}/shims/julia" ]
   assert [ ! -e "${JLENV_ROOT}/shims/uni" ]
 }
 
@@ -118,7 +118,7 @@ SH
 
 @test "sh-rehash in bash" {
   create_executable "2.0" "julia"
-  JLENV_SHELL=bash run jlenv-sh-rehash
+  JLENV_SHELL=bash run jlenv2 sh-rehash
   assert_success 
   assert_output "hash -r 2>/dev/null || true"
   assert [ -x "${JLENV_ROOT}/shims/julia" ]
@@ -126,7 +126,7 @@ SH
 
 @test "sh-rehash in fish" {
   create_executable "2.0" "julia"
-  JLENV_SHELL=fish run jlenv-sh-rehash
+  JLENV_SHELL=fish run jlenv2 sh-rehash
   assert_success 
   assert_output ""
   assert [ -x "${JLENV_ROOT}/shims/julia" ]

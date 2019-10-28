@@ -30,7 +30,7 @@ gsu_errors="
     E_NO_PRJ         No Julia install project wide found.
     E_NO_PRJ_VRSN    No Julia install project wide found of that version.
     E_NO_VRSN_FL     No Julia version file (.julia-version) found.
-    E_NO_VRSN_NMBR   No Julia version read from .julia-version.
+    E_NO_VRSN_NMBR   No Julia version read from JLENV_VERSION, .julia-version.
     E_HLP            Incorrect usage. Please see the error message.
 "
 
@@ -48,6 +48,7 @@ source "${gsu_dir}/jlenv-init"
 source "${gsu_dir}/jlenv-local"
 source "${gsu_dir}/jlenv-prefix"
 source "${gsu_dir}/jlenv-rehash"
+source "${gsu_dir}/jlenv-root"
 source "${gsu_dir}/jlenv-shims"
 source "${gsu_dir}/jlenv-sh-rehash"
 source "${gsu_dir}/jlenv-sh-shell"
@@ -102,6 +103,11 @@ com_prefix()
 com_rehash()
 {
     jlenv_rehash "$@"
+    ret=$GSU_SUCCESS
+}
+com_root()
+{
+    jlenv_root "$@"
     ret=$GSU_SUCCESS
 }
 com_shims()

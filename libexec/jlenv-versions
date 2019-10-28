@@ -42,6 +42,7 @@ for arg; do
 done
 
 versions_dir="${JLENV_ROOT}/versions"
+root_version_dir="${JLENV_ROOT}/root/version"
 
 if [ -d "$versions_dir" ]; then
   versions_dir="$(resolve_path "$versions_dir")"
@@ -55,21 +56,21 @@ if [ -n "$bare" ]; then
 else
   hit_prefix="* "
   miss_prefix="  "
-  current_version="$(com_version-name || true)"
+  current_version="$(com_version-name || '')"
   include_system="1"
 fi
 
 num_versions=0
 
 # Include "system" in the non-bare output, if it exists
-JLENV_VERSION_OLD="${JLENV_VERSION}"
-JLENV_VERSION=system
-# Somewhow this swallows the cursor/shell
-#syschk=$(com_which julia) 2>/dev/null 1>&2
-JLENV_VERSION="${JLENV_VERSION_OLD}"
-ret=$ret
-result=$result
-if [ -n "$include_system" ] && [ "$result" = 'system' ]
+# JLENV_VERSION_OLD="${JLENV_VERSION}"
+# #JLENV_VERSION=system
+# # Somewhow this swallows the cursor/shell
+# #syschk=$(com_which julia) 2>/dev/null 1>&2
+# JLENV_VERSION="${JLENV_VERSION_OLD}"
+# ret=$ret
+# result=$result
+if [ -n "$include_system" ] || [ "$current_version" = 'system' ]
 then
   print_version system
 fi

@@ -37,8 +37,8 @@ if [ ! -d "$JLENV_PREFIX_PATH" ]; then
   echo "jlenv: version 'v${JLENV_VERSION}' not installed" >&2
   exit 1
 fi
-
 echo "$JLENV_PREFIX_PATH"
+
 ret=$GSU_SUCCESS
 result="$JLENV_PREFIX_PATH"
 return $ret

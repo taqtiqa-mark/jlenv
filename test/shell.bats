@@ -58,7 +58,6 @@ OUT
   assert_failure
   assert_output --stdin <<'SH'
 jlenv: version 'v1.2.3' not installed
-false
 SH
 }
 
