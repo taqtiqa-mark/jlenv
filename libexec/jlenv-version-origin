@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-
+com_version-origin()
+{
+    jlenv_version_origin "$@"
+    ret=$GSU_SUCCESS
+}
 jlenv_version_origin()
 ## Explain how the current Julia version is set
 ##

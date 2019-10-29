@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+com_version-file-write()
+{
+    jlenv_version_file_write "$@"
+    ret=$ret
+    result=$result
+    return $ret
+}
 jlenv_version_file_write()
 ## Summary Write given <semver> number to given <file>
 ##

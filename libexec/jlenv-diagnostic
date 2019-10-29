@@ -14,7 +14,7 @@ else
 fi
 
 echo -n "Checking for $(jlenv) in PATH: "
-num_locations="$(command which -a jlenv | uniq | wc -l)"
+num_locations="$(command which -a jlenv2 | uniq | wc -l)"
 if [ $num_locations -eq 0 ]; then
   echo "not found\n"
     if [ -x ~/.jlenv/bin/jlenv2 ]; then
@@ -29,8 +29,8 @@ elif [ $num_locations -eq 1 ]; then
   printf "%s\n" "$(command which jlenv2)"
 else
   printf "multiple\n"
-    echo "You seem to have multiple jlenv installs in the following locations."
-    echo "Please pick just one installation and remove the others."
+    echo "You seem to have multiple jlenv installed at the following locations."
+    echo "Please pick one installation and remove the others."
     echo
     command which -a jlenv2
     echo
@@ -54,13 +54,13 @@ then
   printf "OK\n"
 else
   printf "not found\n"
-    echo "The directory \`$shims_dir' must be present in PATH for jlenv to work."
-    echo "Please run \`jlenv init' and follow the instructions." 
+    echo "The directory '$(shims_dir)' must be present in PATH for jlenv to work."
+    echo "Please run \$(jlenv2 init) and follow the instructions." 
   echo
   : $((warnings++))
 fi
 
-echo -n "Checking $(jlenv install) support: "
+echo -n "Checking \$(jlenv install) support: "
 jlenv_installs="$({ ls "$JLENV_ROOT"/plugins/*/bin/jlenv-install 2>/dev/null || true
                     command which -a jlenv2 install 2>/dev/null || true
                   } | uniq)"
@@ -82,8 +82,8 @@ elif [ $num_installs -eq 1 ]; then
   printf " (%s)\n" "$jlenv_install_version"
 else
   printf "multiple\n"
-    echo "You seem to have multiple $(jlenv-install) in the following locations."
-    echo "Please pick just one installation and remove the others."
+    echo "You seem to have multiple \$(jlenv) installed at the following locations."
+    echo "Please pick one installation and remove the others."
     echo
     echo "$jlenv_installs"
   echo
@@ -94,9 +94,9 @@ echo -n "Counting installed Julia versions: "
 num_julies="$(jlenv2 versions --bare | wc -l)"
 if [ $num_julies -eq 0 ]; then
   printf "none\n"
-  echo "There aren't any Julia versions installed under '${$JLENV_ROOT}/versions'."
+  echo "There aren't any Julia versions installed under '${JLENV_ROOT}/versions'."
   [ $num_installs -eq 0 ] || {
-    echo -n "You can install Julia versions like so: "
+    echo -n "You install Julia versions as follows: "
     printf "jlenv install 1.0.3\n"
   }
 else

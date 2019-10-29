@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source "${gsu_dir}/subcommand" || exit 1
+
+gsu "$@"

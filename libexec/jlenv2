@@ -37,9 +37,10 @@ chmod 700 $JLENV_CACHE_DIR $JLENV_CONFIG_DIR $JLENV_DATA_DIR $JLENV_RUNTIME_DIR
 #https://unix.stackexchange.com/questions/188327/how-do-i-explicitly-and-safely-force-the-use-of-a-built-in-command-in-bash
 #https://unix.stackexchange.com/questions/543792/how-to-protect-bash-function-from-being-overridden
 
-# TODO Completions
-# https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/
-
+# TODO: <TAB><TAB> Completions
+# 1. https://tylerthrailkill.com/2019-01-19/writing-bash-completion-script-with-subcommands/
+# 2. https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/
+# 
 src_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${src_dir}/jlenv-shared
 
@@ -163,36 +164,36 @@ com_version()
     jlenv_version "$@"
     ret=$GSU_SUCCESS
 }
-com_version-file()
-{
-    jlenv_version_file "$@"
-    ret=$ret
-    result=$result
-    return $ret
-}
-com_version-file-read() 
-{
-    # only 1 argument allowed
-    gsu_check_arg_count $# 1 1
-    if [ $ret -lt 0 ]
-    then 
-      failed=$ret
-      gsu_msg "version-file-read" 
-      ret=$failed
-      return $ret
-    fi
-    jlenv_version_file_read "$@"
-    ret=$ret
-    result=$result
-    return $ret   
-}
-com_version-file-write()
-{
-    jlenv_version_file_write "$@"
-    ret=$ret
-    result=$result
-    return $ret
-}
+# com_version-file()
+# {
+#     jlenv_version_file "$@"
+#     ret=$ret
+#     result=$result
+#     return $ret
+# }
+# com_version-file-read()
+# {
+#     # only 1 argument allowed
+#     gsu_check_arg_count $# 1 1
+#     if [ $ret -lt 0 ]
+#     then 
+#       failed=$ret
+#       gsu_msg "version-file-read" 
+#       ret=$failed
+#       return $ret
+#     fi
+#     jlenv_version_file_read "$@"
+#     ret=$ret
+#     result=$result
+#     return $ret   
+# }
+# com_version-file-write()
+# {
+#     jlenv_version_file_write "$@"
+#     ret=$ret
+#     result=$result
+#     return $ret
+# }
 com_version-jlenv()
 {
     jlenv_jlenv "$@"
@@ -200,18 +201,18 @@ com_version-jlenv()
     result=$result
     return
 }
-com_version-name()
-{
-    jlenv_version_name "$@"
-    ret=$ret
-    result=$result
-    return
-}
-com_version-origin()
-{
-    jlenv_version_origin "$@"
-    ret=$GSU_SUCCESS
-}
+# com_version-name()
+# {
+#     jlenv_version_name "$@"
+#     ret=$ret
+#     result=$result
+#     return
+# }
+# com_version-origin()
+# {
+#     jlenv_version_origin "$@"
+#     ret=$GSU_SUCCESS
+# }
 com_versions()
 {
     jlenv_versions "$@"

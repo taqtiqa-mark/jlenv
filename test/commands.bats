@@ -7,10 +7,29 @@ load test_helper
 @test "commands" {
   run jlenv2 commands
   assert_success
-  assert_line "init"
-  assert_line "rehash"
-  assert_line "shell"
-  refute_line "sh-shell"
+  refute_output ""
+  # commands
+  # complete
+  # diagnostic
+  # exec
+  # global
+  # help
+  # hooks
+  # init
+  # local
+  # man
+  # prefix
+  # prefs
+  # rehash
+  # root
+  # shims
+  # rehash
+  # shell
+  # version
+  # version-jlenv
+  # versions
+  # whence
+  # which
 }
 
 # in the test enviornment we use libenv-echo.

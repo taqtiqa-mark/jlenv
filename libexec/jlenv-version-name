@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+com_version-name()
+{
+    jlenv_version_name "$@"
+    ret=$ret
+    result=$result
+    return
+}
+
 version_exists() {
   local version="$1"
   [ -d "${JLENV_ROOT}/versions/${version}" ]

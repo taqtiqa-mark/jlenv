@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+com_version-file()
+{
+    jlenv_version_file "$@"
+    ret=$ret
+    result=$result
+    return $ret
+}
 
 find_local_version_file() {
   local root="$1"

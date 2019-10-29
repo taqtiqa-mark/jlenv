@@ -844,6 +844,32 @@ gsu_get_unnamed_arg_num()
 	result="$((n - 1))"
 }
 
+fn_exists()
+{
+	# Turn on debug
+	shopt -s extdebug
+
+	# Print out the function's name, line number and file where it was sourced from
+	IFS=' ' dec=($(declare -F "com_$1"))
+	#my_function 46 /home/dogbane/.bash/.bash_functions
+	
+	# Turn off debug
+	shopt -u extdebug
+
+	if [ ${#dec[@]} -eq 3 ]; then
+		echo "Yeah, three pieces of information..."
+		func=dec[0]
+		num=dec[1]
+		fl=dec[2]
+		return 0  
+	else
+		echo "No function data, oops."
+		return 1
+	fi
+
+	LC_ALL=C type -t $1 | grep -q 'shell function'
+}
+
 # Entry point for all gsu-based scripts.
 #
 # The startup part of the application script should source this file to load
