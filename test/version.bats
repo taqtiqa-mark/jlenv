@@ -16,13 +16,15 @@ setup() {
 @test "no version selected" {
   assert [ ! -d "${JLENV_ROOT}/versions" ]
   run jlenv-version
-  assert_success "system (set by ${JLENV_ROOT}/version)"
+  assert_success 
+  assert_output "system (set by ${JLENV_ROOT}/version)"
 }
 
 @test "set by JLENV_VERSION" {
   create_version "1.0.3"
   JLENV_VERSION=1.0.3 run jlenv-version
-  assert_success "1.0.3 (set by JLENV_VERSION environment variable)"
+  assert_success 
+  assert_output "1.0.3 (set by JLENV_VERSION environment variable)"
 }
 
 @test "set by local file" {

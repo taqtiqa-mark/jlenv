@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck -x
-#
-# Summary: Run the BATS test files
-#
-# Useage:  test/run
-#
-# 
-set -o errexit          # Exit on most errors (see the manual)
-set -o errtrace         # Make sure any error trap is inherited
-# set -o nounset          # Disallow expansion of unset variables
-set -o pipefail         # Use last non-zero exit code in a pipeline
-# set -o xtrace          # Trace the execution of the script (debug)
 
 # DESC: Generic script initialisation (useful paths)
 # ARGS: $@ (optional): Arguments provided to the script
@@ -37,19 +25,39 @@ function script_init() {
     readonly ta_none="$(tput sgr0 2> /dev/null || true)"
 }
 
+bats_table()
+{
+  echo 'Bats test failed count:'
+  cat bats.log |
+    sed -e '/^not ok\|\.bats/!d' |
+    tr '[:space:]' '[\n*]' |
+    sort |
+    uniq -c |
+    sort -nr |
+    grep bats | tee bats.tbl
+}
+
+bats_not_descriptions() 
+{
+  cat bats.log|
+    sed -e '/^not ok/!d'|
+    cut -f4- -d ' ' >bats.not
+}
+
+bats_not_cmds() 
+{
+  echo 'export JLENV_DEBUG=1' >bats_not.cmds
+  cat bats.not | while read -r line; do echo "${script_dir}/libs/bats/bin/bats -f '${line}' test" >>bats_not.cmds; done
+}
+
 script_init
 
-# Setup the bats environment for testing.
-if [ -d libs/bats ] && [ -d libs/bats-assert ] && [ -d libs/bats-file ] && [ -d libs/bats-mock ] && [ -d libs/bats-support ]
-then
-  # shellcheck source=/refresh_submodules.bash
-  source "${script_dir}/refresh_submodules.bash"
-else
-  # shellcheck source=/setup_bats.bash
-  source "${script_dir}/setup_bats.bash"
-fi
 
-# We should now be at the plugin root folder.  
-# exec "${script_dir}/libs/bats/bin/bats" ${CI:+--tap} test
+bats_table
+bats_not_descriptions
+bats_not_cmds
 
-${script_dir}/libs/bats/bin/bats --tap test | tee bats.log
+cat bats.tbl
+cat bats_not.cmds
+
+bash bats_not.cmds || true

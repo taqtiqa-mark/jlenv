@@ -8,7 +8,7 @@
   * [jlenv does…_](#jlenv-does_)
   * [Jlenv <em>does not…</em>](#jlenv-does-not)
   
-## jlenv _does…_
+## `jlenv` _does…_
 
 * Support specifying **application-specific Julia versions** with
   `.julia-version` file.
@@ -28,6 +28,6 @@
 * **Manage Packages.** [Pkg](https://julialang.github.io/Pkg.jl/stable/managing-packages/) 
   is a better way to manage application dependencies. 
 * **Require changes to Julia libraries for compatibility.** The simplicity of 
-  jlenv means as long as it's in your `$PATH`, 
+  `jlenv` means as long as it's in your `$PATH`, 
   [nothing](https://discourse.julialang.org/t/handling-multiple-versions-of-julia/14035)
   [else](http://modules.sourceforge.net/) needs to know about it.

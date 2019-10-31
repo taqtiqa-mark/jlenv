@@ -28,7 +28,7 @@ setting the `JLENV_VERSION` environment variable.
 jlenv global v0.6.0
 ```
 
-The special version name `system` tells jlenv to use the system Julia
+The special version name `system` tells `jlenv` to use the system Julia
 (detected by searching your `$PATH`).
 
 When run without a version number, `jlenv global` reports the
@@ -59,7 +59,7 @@ jlenv local --unset
 
 ## jlenv rehash
 
-Installs shims for all Julia executables known to jlenv (i.e.,
+Installs shims for all Julia executables known to `jlenv` (i.e.,
 `~/.jlenv/versions/*/bin/*`). Run this command after you install a new
 version of Julia, or install a gem that provides commands.
 
@@ -141,7 +141,7 @@ $ jlenv whence julia
 
 ## jlenv which
 
-Displays the full path to the executable that jlenv will invoke when
+Displays the full path to the executable that `jlenv` will invoke when
 you run the given command.
 
 ```bash

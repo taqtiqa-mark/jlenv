@@ -10,7 +10,7 @@
   * [Choosing the Julia Version](#choosing-the-julia-version)
   * [Locating the Julia Installation](#locating-the-julia-installation)
 
-At a high level, jlenv intercepts Julia commands using shim
+At a high level, `jlenv` intercepts Julia commands using shim
 executables injected into your `PATH`, determines which Julia version
 has been specified by your application, and passes your commands along
 to the correct Julia installation.
@@ -37,22 +37,22 @@ jlenv works by inserting a directory of _shims_ at the front of your
 
     ~/.jlenv/shims:/usr/local/bin:/usr/bin:/bin
 
-Through a process called _rehashing_, jlenv maintains shims in that
+Through a process called _rehashing_, `jlenv` maintains shims in that
 directory to match every Julia command across every installed version
 of Julia.
 
 Shims are lightweight executables that simply pass your command along
-to jlenv. So with jlenv installed, when you run, say, `julia`, your
+to jlenv. So with `jlenv` installed, when you run, say, `julia`, your
 operating system will do the following:
 
 * Search your `PATH` for an executable file named `julia`
-* Find the jlenv shim named `julia` at the beginning of your `PATH`
+* Find the `jlenv` shim named `julia` at the beginning of your `PATH`
 * Run the shim named `julia`, which in turn passes the command along to
   jlenv
 
 ## Choosing the Julia Version
 
-When you execute a shim, jlenv determines which Julia version to use by
+When you execute a shim, `jlenv` determines which Julia version to use by
 reading it from the following sources, in this order:
 
 1. The `JLENV_VERSION` environment variable, if specified. You can use
@@ -70,13 +70,13 @@ reading it from the following sources, in this order:
 
 4. The global `~/.jlenv/version` file. You can modify this file using
    the [`jlenv global`](#jlenv-global) command. If the global version
-   file is not present, jlenv assumes you want to use the "system"
-   Julia—i.e. whatever version would be run if jlenv weren't in your
+   file is not present, `jlenv` assumes you want to use the "system"
+   Julia—i.e. whatever version would be run if `jlenv` weren't in your
    path.
 
 ## Locating the Julia Installation
 
-Once jlenv has determined which version of Julia your application has
+Once `jlenv` has determined which version of Julia your application has
 specified, it passes the command along to the corresponding Julia
 installation.
 
@@ -88,5 +88,5 @@ installed:
 * `~/.jlenv/versions/v0.6.0-rc3/`
 * `~/.jlenv/versions/v0.5.0/`
 
-Version names to jlenv are simply the names of the directories in
+Version names to `jlenv` are simply the names of the directories in
 `~/.jlenv/versions`.

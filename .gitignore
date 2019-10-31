@@ -1,3 +1,9 @@
+# Don't track bats.log created by test/run
+bats_not.cmds
+bats.log
+bats.not
+bats.tbl
+
 # Don't track test scaffolding:
 test/libs
 test/libs/jlenv

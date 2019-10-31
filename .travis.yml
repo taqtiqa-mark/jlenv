@@ -1,6 +1,50 @@
-sudo: false
-language: c
+--- 
+after_success: 
+  - "bash <(curl -s https://codecov.io/bash)"
+before_install: "gem update --system --no-doc"
+before_script: 
+  - "whereis bash"
+  - "bash --version"
+  - ./test/install_bash.bash
+  - "bash --version"
+  - "git clone https://github.com/infertux/bashcov.git"
+  - "cd bashcov/"
+  - "gem build bashcov.gemspec"
+  - "gem install bashcov-2.0.0.gem"
+  - "export PATH=$PATH:$PWD"
+  - "cd .."
+  - "gem install codecov"
+  - "gem install coveralls"
+  - "gem install codeclimate-test-reporter"
+cache: 
+  directories: 
+    - bash
+env: 
+  matrix: 
+    - INSTALL_BASH_VERSION=5.0
+    - INSTALL_BASH_VERSION=4.4
+    - INSTALL_BASH_VERSION=4.3
+    - INSTALL_BASH_VERSION=4.2.53
+    - INSTALL_BASH_VERSION=4.1
+    - INSTALL_BASH_VERSION=4.0
+language: ruby
+matrix: 
+  allow_failures: 
+    - 
+      env: INSTALL_BASH_VERSION=4.2.53
+    - 
+      env: INSTALL_BASH_VERSION=4.1
+    - 
+      env: INSTALL_BASH_VERSION=4.0
+  include: 
+    - 
+      rvm: "2.5.5"
+os: 
+  - linux
+rvm: 
+  - "2.5.5"
 script:
-  # - shellcheck etc/jlenv.d/exec/*
-  # - shellcheck libexec/*
-  - test/run
+  - (bashcov test/run || true)
+  - bash test/run
+  - (bash test/report || true)
+sudo: required

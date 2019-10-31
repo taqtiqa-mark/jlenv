@@ -10,30 +10,30 @@
     * [Calling other commands](#calling-other-commands)
     * [Help text](#help-text)
     * [Completions](#completions)
-  * [Provide jlenv completions](#provide-jlenv-completions)
+  * [Provide `jlenv` completions](#provide-jlenv-completions)
   * [jlenv hooks](#jlenv-hooks)
   
-jlenv plugins provide new commands and/or hook into existing functionality of
-jlenv. The following file naming scheme should be followed in a plugin project:
+`jlenv` plugins provide new commands and/or hook into existing functionality of
+`jlenv`. The following file naming scheme should be followed in a plugin project:
 
 1. `bin/jlenv-COMMAND` for commands
 1. `etc/jlenv.d/HOOK_NAME/*.bash` for hooks
 
-## jlenv commands
+## `jlenv` commands
 
-A jlenv command is an executable named like `jlenv-COMMAND`. It will get
+A `jlenv` command is an executable named like `jlenv-COMMAND`. It will get
 executed when a user runs `jlenv COMMAND`.
 Its help will be displayed when a user runs `jlenv help COMMAND`.
 It can be written in any interpreted language, but bash script is recommended
 for portability.
 
-**A plugin command cannot override any of the jlenv's built-in commands.**
+**A plugin command must not override any of the jlenv's built-in commands.**
 
 ### Environment
 
-Each jlenv command runs with the following environment:
+Each `jlenv` command runs with the following environment:
 
-* `$JLENV_ROOT` - where jlenv versions & user data is typically in `~/.jlenv`
+* `$JLENV_ROOT` - where `jlenv` versions & user data is typically in `~/.jlenv`
 * `$JLENV_DIR` - the current directory of the caller
 * `$PATH` - constructed to contain:
   1. jlenv's `libexec` dir with core commands
@@ -54,7 +54,7 @@ A plugin command shouldn't have too much knowledge of jlenv's internals.
 
 ### Help text
 
-An jlenv command should provide help text in the topmost comment of its source
+An `jlenv` command should provide help text in the topmost comment of its source
 code.
 The help format is described in `jlenv help help`.
 
@@ -86,7 +86,7 @@ fi
 A command can optionally provide tab-completions in the shell by outputting
 completion values when invoked with the `--complete` flag.
 
-## Provide jlenv completions
+## Provide `jlenv` completions
 
 ```bash
 if [ "$1" = "--complete" ]; then
@@ -96,9 +96,10 @@ fi
 ```
 
 Note: **it's important to keep the above comment intact**.
-This is how jlenv detects if a command is provides completion values.
+This is how `jlenv` detects if a command is provides completion values.
 
 ## jlenv hooks
+---------------------------
 
 Hooks are bash scripts named `HOOK_NAME/*.bash`, where "HOOK\_NAME" is one of:
 
@@ -117,7 +118,7 @@ Hooks are looked for in `$JLENV_HOOK_PATH`, which is composed of:
 1. `/usr/lib/jlenv/hooks`
 1. `$JLENV_ROOT/plugins/*/etc/jlenv.d`
 
-Hook scripts are executed at specific points during jlenv operation.
+Hook scripts are executed at specific points during `jlenv` operation.
 They provide a low-level entry point for integration with jlenv's functionality.
 To get a better understanding of the possibilities with hooks, read the source
 code of jlenv's hook-enabled commands listed above.
