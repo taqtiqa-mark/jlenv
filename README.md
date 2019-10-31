@@ -2,7 +2,7 @@
 
 ---
 
-[![Build Status](https://travis-ci.com/jlenv/jlenv.svg?branch=master)](https://travis-ci.com/jlenv/jlenv) [![CodeFactor](https://www.codefactor.io/repository/github/jlenv/jlenv/badge)](https://www.codefactor.io/repository/github/jlenv/jlenv) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d970140c2ff4547820b7f2a908620cd)](https://www.codacy.com/manual/taqtiqa-mark/jlenv_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jlenv/jlenv&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.com/jlenv/jlenv.svg?branch=master)](https://travis-ci.com/jlenv/jlenv) [![CodeFactor](https://www.codefactor.io/repository/github/jlenv/jlenv/badge)](https://www.codefactor.io/repository/github/jlenv/jlenv) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d970140c2ff4547820b7f2a908620cd)](https://www.codacy.com/manual/taqtiqa-mark/jlenv_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jlenv/jlenv&amp;utm_campaign=Badge_Grade) [![Coverage Status](https://coveralls.io/repos/github/jlenv/jlenv/badge.svg?branch=master)](https://coveralls.io/github/jlenv/jlenv?branch=master) [![codecov](https://codecov.io/gh/jlenv/jlenv/branch/master/graph/badge.svg)](https://codecov.io/gh/jlenv/jlenv)
 
 Use jlenv to pick a Julia version for your application and guarantee
 that your development environment matches production.
