@@ -154,7 +154,7 @@ function script_init() {
     readonly jlenv_cmd_args="$*"
 }
 
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 script_init "$@"
 

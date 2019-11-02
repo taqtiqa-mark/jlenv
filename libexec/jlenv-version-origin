@@ -24,7 +24,7 @@
 source jlenv-shared
 
 set -e
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 unset JLENV_VERSION_ORIGIN
 

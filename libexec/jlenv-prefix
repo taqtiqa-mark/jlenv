@@ -19,7 +19,7 @@
 source jlenv-shared
 
 set -e
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then

@@ -17,7 +17,7 @@
 # - `jlevn_<command>` holds functional logic and is called by `parse_cmds`
 source jlenv-shared
 
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 # Provide jlenv completions
 if [ "$1" = "--complete" ]; then

@@ -18,7 +18,7 @@
 source jlenv-shared
 
 set -e
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 JLENV_VERSION_FILE="$1"
 JLENV_VERSION="$2"

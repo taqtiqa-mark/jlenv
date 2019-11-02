@@ -19,7 +19,7 @@
 source jlenv-shared
 
 set -e
-[ -n "$JLENV_DEBUG" ] && set -x
+[ -n "$JLENV_DEBUG" ] && set -o xtrace
 
 SHIM_PATH="${JLENV_ROOT}/shims"
 PROTOTYPE_SHIM_PATH="${SHIM_PATH}/.jlenv-shim"
@@ -60,7 +60,7 @@ create_prototype_shim() {
   cat > "$PROTOTYPE_SHIM_PATH" <<SH
 #!/usr/bin/env bash
 set -e
-[ -n "\$JLENV_DEBUG" ] && set -x
+[ -n "\$JLENV_DEBUG" ] && set -o xtrace
 
 program="\${0##*/}"
 if [ "\$program" = "julia" ]; then
